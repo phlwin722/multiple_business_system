@@ -7,10 +7,14 @@ import { useStateContext } from "../contexts/ContextProvider";
 
 const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const navigate = useNavigate();
+  const { user } = useStateContext();
 
   const [selectedRows, setSelectedRows] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [listBusiness, setListBusiness] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedBusinessId, setSelectedBusinessId] = useState("");
 
   const toggleRow = (id) => {
     setSelectedRows((prev) =>
@@ -43,13 +47,30 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     }
   };
 
-  useEffect( async() => {
-    if (type) {
-      const response = await axiosClient.post(`${url}/fetchBusinesses`, {
-        user_id
-      })
-    }
-  },[type])
+  const handleChangeSelected = (e) => {
+    setSelectedBusinessId(e.target.value);
+    console.log("Selected business ID:", e.target.value);
+  };
+
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        if (type) {
+          const response = await axiosClient.post(`${url}/fetchBusinesses`, {
+            user_id: user.id,
+          });
+
+          if (response.data.data) {
+            setListBusiness(response.data.data);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchBusinesses();
+  }, [type]);
 
   return (
     <div>
@@ -64,16 +85,67 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
       <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex justify-between items-center">
         <div>
           {type && (
-            <div className="space-x-3">
-              <select className="w-50 border border-gray-300 p-2 rounded-md">
-                <option></option>
-              </select>
+            <div className="space-x-4  flex">
+              {/* Select with Floating Label */}
+              <div className="relative w-full md:w-52">
+                <select
+                  id="business"
+                  value={selectedBusinessId}
+                  onChange={handleChangeSelected}
+                  className="peer block w-full appearance-none border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {listBusiness.length > 0 ? (
+                    <>
+                      <option value="" hidden></option>
+                      {listBusiness.map((business) => (
+                        <option
+                          className="border border-gray-300 w-50"
+                          key={business.id}
+                          value={business.id}
+                        >
+                          {business.business_name}
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <option value="" hidden></option> 
+                    </>
+                  )}
+                </select>
+                <label
+                  htmlFor="business"
+                  className={`
+             absolute left-2 top-3  text-gray-500 transition-all pointer-events-none
+            peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600
+            ${selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""}
+          `}
+                >
+                  Select Business
+                </label>
+              </div>
 
-              <input
-                type="search"
-                className="border border-gray-300 p-2 rounded-md"
-                placeholder="Search..."
-              />
+              {/* Search with Floating Label */}
+              <div className="relative w-full md:w-64">
+                <input
+                  type="search"
+                  id="search"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder=""
+                />
+                <label
+                  htmlFor="search"
+                  className={`
+            absolute left-2 top-3  text-gray-500 transition-all pointer-events-none
+            peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600
+            ${searchValue ? "text-xs top-[4px] text-blue-600" : ""}
+          `}
+                >
+                  Search
+                </label>
+              </div>
             </div>
           )}
         </div>
