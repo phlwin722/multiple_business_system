@@ -1,6 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const Notfound = () => {
+  const navigate = useNavigate();
   return (
     <div className="w-full min-h-screen bg-gray-100 flex flex-col items-center justify-center text-center px-4">
       <h1 className="text-[100px] font-extrabold text-blue-600 leading-none mb-4">
@@ -13,12 +15,12 @@ const Notfound = () => {
         The page you're looking for doesn't exist or has been moved. Please
         check the URL or return to the homepage.
       </p>
-      <Link
-        to="/"
-        className="bg-blue-600 px-6 py-2 text-white rounded-md hover:bg-blue-70 transition duration-300"
+      <button
+        onClick={() => navigate(-1)}
+        className="bg-blue-500 px-6 cursor-pointer py-2 text-white rounded-md hover:bg-blue-700 transition duration-300"
       >
         Go to Homepage
-      </Link>
+      </button>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import axiosClient from "../axiosClient";
 import { useState } from "react";
 import { useStateContext } from "../contexts/ContextProvider";
 import Loading from "./loading";
+import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 
 const Sidebar = ({ isCollapsed, setCollapsed }) => {
   const URL = "auth";
@@ -23,8 +24,13 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
     },
     {
       name: 'Business', 
-      path: '/business',
+      path: '/bussiness',
       icon: <MdOutlineBusiness size={23}/>
+    },
+    {
+      name: 'Product',
+      path: "/product",
+      icon: <MdOutlineProductionQuantityLimits size={23}/>
     },
     {
       name: "Settings",
@@ -76,7 +82,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
             {items.action ? (
               <button
                 onClick={handleLogout}
-                className={`flex items-center gap-3 p-2 w-full text-left rounded-md transition-colors text-gray-700 hover:bg-gray-200 ${
+                className={`flex items-center gap-3 cursor-pointer p-2 w-full text-left rounded-md transition-colors text-gray-700 hover:bg-gray-200 ${
                   isCollapsed ? "justify-center" : ""
                 }`}
               >

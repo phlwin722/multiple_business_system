@@ -6,6 +6,9 @@ import Login from '../pages/default/Login';
 import MainLayout from '../layout/MainLayout';
 import DashBoard from '../pages/main/dashboard';
 import Business from '../pages/main/business';
+import Business_Form from '../pages/main/bussiness_form';
+import Product from '../pages/main/Product';
+import ProductForm from '../pages/main/ProductForm';
 
 const router = createBrowserRouter([
   {
@@ -39,8 +42,20 @@ const router = createBrowserRouter([
         element: <DashBoard />
       }, 
       {
-        path: '/business',
+        path: '/bussiness',
         element: <Business />
+      },
+      {
+        path: '/bussiness/form/:id?',
+        element: <Business_Form />
+      }, 
+      {
+        path: '/product',
+        element: <Product />
+      },
+      {
+        path: '/product/form/:id?',
+        element: <ProductForm />
       }
     ],
   },

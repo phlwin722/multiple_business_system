@@ -52,9 +52,7 @@ const Signup = () => {
       <ToastContainer />
 
       {loading && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-[9999] flex items-center justify-center">
-          <Loading />
-        </div>
+        <Loading />
       )}
 
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
@@ -78,7 +76,8 @@ const Signup = () => {
               id="firstName"
               type="text"
               ref={firstName}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              errors?.first_name ? "border-red-500" :  "border-gray-300" }`}
             />
             {errors?.first_name && (
               <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>
@@ -97,7 +96,8 @@ const Signup = () => {
               id="lastName"
               type="text"
               ref={lastName}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              errors?.last_name ? "border-red-500" : "border-gray-300"}`}
             />
             {errors?.last_name && (
               <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>
@@ -116,7 +116,8 @@ const Signup = () => {
               id="email"
               type="email"
               ref={email}
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              errors?.email ? "border-red-500" : "border-gray-300" }`}
             />
             {errors?.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -136,7 +137,8 @@ const Signup = () => {
                 id="password"
                 type={hidden ? "password" : "text"}
                 ref={password}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                errors?.password ? "border-red-500" : "border-gray-300"}`}
               />
               <span
                 onClick={() => setHidden(!hidden)}
