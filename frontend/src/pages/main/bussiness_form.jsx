@@ -159,7 +159,7 @@ const business_form = () => {
           </label>
 
           <div
-            className={`w-[200px] h-[250px] border border-gray-300 p-sm rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
+            className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
               errors?.image ? "border-red-500" : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
