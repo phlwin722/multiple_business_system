@@ -29,6 +29,7 @@ const Signup = () => {
       last_name: lastName.current.value,
       email: email.current.value,
       password: password.current.value,
+      position: 'admin'
     };
 
     try {

@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import { HiDotsVertical } from "react-icons/hi";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MainLayout = () => {
   const { token, user } = useStateContext();
@@ -83,6 +85,7 @@ const MainLayout = () => {
       <div className="bg-gray-100 flex-1">
         <Navbar isCollapsed={isCollapsed} setCollapsed={setCollapsed} />
         <Outlet />
+        <ToastContainer position="top-center" autoClose={2500} />
       </div>
     </div>
   );

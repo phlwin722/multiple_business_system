@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Bussines;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
@@ -13,6 +13,11 @@ class Product extends Model
         'quantity',
         'image',
         'business_id',
-        'user_id'
+        'user_id',
+        'image'
     ];
+
+    public function business() {
+        return $this->belongsTo(Bussines::class, 'business_id');
+    }
 }

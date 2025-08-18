@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import axiosClient from "../axiosClient";
 import { useStateContext } from "../contexts/ContextProvider";
+import toastify from "./toastify";
 
 const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const navigate = useNavigate();
@@ -47,10 +48,32 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     }
   };
 
-  const handleChangeSelected = (e) => {
-    setSelectedBusinessId(e.target.value);
-    console.log("Selected business ID:", e.target.value);
+  const handleAddForm = async () => {
+    if (type) {
+      if (listBusiness.length == 0) {
+        if (url === '/employee') {
+          toastify("error", "Please create business to proceed add employee");
+        } else if (url === '/product') {
+          toastify("error", "Please create business to proceed add product");
+        }
+      } else {
+        navigate(`${url}/form`);
+      }
+    } else {
+      navigate(`${url}/form`);
+    }
   };
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (type) {
+        fetchData(selectedBusinessId, searchValue);
+        console.log('erch', searchValue)
+      }
+    }, 500); // delay in ms
+
+    return () => clearTimeout(delayDebounce); // cleanup
+  }, [searchValue, selectedBusinessId]); // run when either changes
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -91,12 +114,13 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                 <select
                   id="business"
                   value={selectedBusinessId}
-                  onChange={handleChangeSelected}
+                  onChange={(e) => setSelectedBusinessId(e.target.value)}
                   className="peer block w-full appearance-none border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {listBusiness.length > 0 ? (
                     <>
                       <option value="" hidden></option>
+                      <option value="0">All</option>
                       {listBusiness.map((business) => (
                         <option
                           className="border border-gray-300 w-50"
@@ -109,7 +133,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                     </>
                   ) : (
                     <>
-                      <option value="" hidden></option> 
+                      <option value="" hidden></option>
                     </>
                   )}
                 </select>
@@ -151,7 +175,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
         </div>
         <div>
           <button
-            onClick={() => navigate(`${url}/form`)}
+            onClick={handleAddForm}
             className="bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition cursor-pointer"
           >
             {" "}

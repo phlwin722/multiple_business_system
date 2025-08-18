@@ -5,10 +5,12 @@ import Notfound from '../Notfound';
 import Login from '../pages/default/Login';
 import MainLayout from '../layout/MainLayout';
 import DashBoard from '../pages/main/dashboard';
-import Business from '../pages/main/business';
-import Business_Form from '../pages/main/bussiness_form';
 import Product from '../pages/main/Product';
 import ProductForm from '../pages/main/ProductForm';
+import Business from '../pages/main/business'; 
+import Employee from '../pages/main/Employee';
+import EmployeeForm from '../pages/main/EmployeeForm';
+import BusinessForm from '../pages/main/BusinessForm';
 
 const router = createBrowserRouter([
   {
@@ -42,12 +44,12 @@ const router = createBrowserRouter([
         element: <DashBoard />
       }, 
       {
-        path: '/bussiness',
+        path: '/business',
         element: <Business />
       },
       {
-        path: '/bussiness/form/:id?',
-        element: <Business_Form />
+        path: '/business/form/:id?',
+        element: <BusinessForm />
       }, 
       {
         path: '/product',
@@ -56,6 +58,14 @@ const router = createBrowserRouter([
       {
         path: '/product/form/:id?',
         element: <ProductForm />
+      },
+      {
+        path: '/employee',
+        element: <Employee />
+      },
+      {
+        path: '/employee/form/:id?',
+        element: <EmployeeForm />
       }
     ],
   },

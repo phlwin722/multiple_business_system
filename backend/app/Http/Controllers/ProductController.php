@@ -10,27 +10,39 @@ use App\Http\Requests\ProductRequest;
 
 class ProductController extends Controller
 {
-    public function index (Request $request) {
+    public function index(Request $request)
+    {
         try {
-            $data = Product::where('user_id', $request->user_id)
-                ->where('business_id', $request->business_id)
-                ->orderBy('created_at', 'desc')
+
+            $query = Product::where('user_id', $request->user_id);
+
+            if ($request->has('business_id') && $request->business_id > 0) {
+                $query->where('business_id', $request->business_id);
+            }
+
+            if ($request->product_name != null) {
+                $query->where('product_name', 'like', '%'. $request->product_name . '%');
+            }
+
+            // Execute query with ordering
+            $products = $query->orderBy('created_at', 'desc')
                 ->get()
-                ->map(function ($data) {
-                return [
-                    'id' => $data->id,
-                    'product_name' => $data->product_name,
-                    'price' => $data->price,
-                    'quantity' => $data->quantity,
-                    'image' => asset($data->image),
-                    'business_id' => $data->business_id,
-                    'user_id' => $data->user_id
-                ];
-            });
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'product_name' => $product->product_name,
+                        'price' => $product->price,
+                        'quantity' => $product->quantity,
+                        'image' => asset($product->image),
+                        'business_id' => $product->business_id,
+                        'user_id' => $product->user_id,
+                        'business_name' => $product->business->business_name ?? null, // <-- Here
+                    ];
+                });
 
             return response()->json([
-                'message' => 'Business list retrieved successfully',
-                'data' => $data,
+                'message' => 'Product list retrieved successfully',
+                'data' => $products,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -39,7 +51,8 @@ class ProductController extends Controller
         }
     }
 
-    public function update (ProductRequest $productRequest) {
+    public function update(ProductRequest $productRequest)
+    {
         try {
             $product = Product::findOrFail($productRequest->id);
             $product->update(
@@ -47,10 +60,11 @@ class ProductController extends Controller
                     'product_name' => $productRequest->product_name,
                     'price' => $productRequest->price,
                     'quantity' => $productRequest->quantity,
+                    'business_id' => $productRequest->business_id
                 ],
             );
 
-           if ($productRequest->hasFile('image')) {
+            if ($productRequest->hasFile('image')) {
 
                 // delete the old message if it exist
                 if ($product->image) {
@@ -81,11 +95,11 @@ class ProductController extends Controller
 
                     $product->update(['image' => $filePath]);
                 }
-           }
+            }
 
-           return response()->json([
+            return response()->json([
                 'message' => 'Updated successfully',
-           ]);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -93,25 +107,25 @@ class ProductController extends Controller
         }
     }
 
-    public function delete (Request $request) {
+    public function delete(Request $request)
+    {
         try {
-           $ids = $request->input('ids');
+            $ids = $request->input('ids');
 
-           if (empty($ids) || !is_array($ids)) {
-            return response()->json([
-                'error' => 'Invalid request'
-            ],400);
-           }
+            if (empty($ids) || !is_array($ids)) {
+                return response()->json([
+                    'error' => 'Invalid request'
+                ], 400);
+            }
 
-           $deletedCount = Product::whereIn('id', $ids)->delete();
+            $deletedCount = Product::whereIn('id', $ids)->delete();
 
-           if ($deletedCount > 0) {
-            return response()->json([
-                'message' => 'Deleted successfully',
-                'deleted' => $deletedCount
-            ]);
-           }
-
+            if ($deletedCount > 0) {
+                return response()->json([
+                    'message' => 'Deleted successfully',
+                    'deleted' => $deletedCount
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -119,7 +133,8 @@ class ProductController extends Controller
         }
     }
 
-    public function insert (ProductRequest $productRequest) {
+    public function insert(ProductRequest $productRequest)
+    {
         try {
             $data = $productRequest->validated();
             $product = Product::create($data);
@@ -151,7 +166,6 @@ class ProductController extends Controller
                 'message' => "Business created successfully",
                 'data' => $product
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -159,7 +173,8 @@ class ProductController extends Controller
         }
     }
 
-    public function find (Request $request) {
+    public function find(Request $request)
+    {
         try {
             $data = Product::findOrFail($request->id);
 
@@ -184,7 +199,8 @@ class ProductController extends Controller
         }
     }
 
-    public function fetchBusinesses (Request $request) {
+    public function fetchBusinesses(Request $request)
+    {
         try {
             $data = Bussines::where('user_id', $request->user_id)
                 ->orderBy('created_at', 'asc')
