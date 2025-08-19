@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useStateContext } from "../contexts/ContextProvider";
 import Loading from "./loading";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
+import { IoPeople } from "react-icons/io5";
 
 const Sidebar = ({ isCollapsed, setCollapsed }) => {
   const URL = "auth";
@@ -24,8 +25,13 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
     },
     {
       name: 'Business', 
-      path: '/bussiness',
+      path: '/business',
       icon: <MdOutlineBusiness size={23}/>
+    },
+    {
+      name: 'Employee',
+      path: '/employee',
+      icon: <IoPeople side={23}/>
     },
     {
       name: 'Product',

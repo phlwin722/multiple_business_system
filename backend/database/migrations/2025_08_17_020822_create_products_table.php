@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('quantity')->nullable();
             $table->string('image')->nullable();
             $table->foreignId('business_id')
-                    ->constrained('bussines', 'id')
+                    ->constrained('businesses', 'id')
                     ->onUpdate('cascade')
                     ->onDelete('cascade');
             $table->foreignId('user_id')

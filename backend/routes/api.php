@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\BussinessController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -17,7 +17,7 @@ Route::prefix('auth')->controller(UserController::class)->group(function () {
     Route::middleware('auth:sanctum')->post('/logout', 'logout');
 });
 
-Route::prefix('bussiness')->middleware('auth:sanctum')->controller(BussinessController::class)->group(function () {
+Route::prefix('business')->middleware('auth:sanctum')->controller(BussinessController::class)->group(function () {
     Route::post('/create', 'insert');
     Route::post('/index', 'index');
     Route::post('/delete', 'delete');
@@ -27,6 +27,16 @@ Route::prefix('bussiness')->middleware('auth:sanctum')->controller(BussinessCont
 });
 
 Route::prefix('product')->middleware('auth:sanctum')->controller(ProductController::class)->group(function () {
+    Route::post('/create', 'insert');
+    Route::post('/index', 'index');
+    Route::post('/delete', 'delete');
+    Route::post('/update', 'update');
+    Route::post('/index', 'index');
+    Route::post('/find', 'find');
+    Route::post('fetchBusinesses', 'fetchBusinesses');
+});
+
+Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeController::class)->group(function () {
     Route::post('/create', 'insert');
     Route::post('/index', 'index');
     Route::post('/delete', 'delete');

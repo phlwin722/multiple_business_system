@@ -4,8 +4,8 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/ContextProvider";
-import { ToastContainer } from "react-toastify";
 import Loading from "../../components/loading";
+import toastify from "../../components/toastify";
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -47,8 +47,8 @@ const ProductForm = () => {
 
       const formData = new FormData();
       formData.append("product_name", product_name.current.value);
-      formData.append("price", parseFloat(price.current.value));
-      formData.append("quantity", parseInt(quantity.current.value));
+      formData.append("price", price.current.value ? parseFloat(price.current.value) : '');
+      formData.append("quantity", quantity.current.value ? parseInt(quantity.current.value) : "");
       formData.append("business_id", business.current.value);
       formData.append("user_id", user.id);
 
@@ -66,6 +66,7 @@ const ProductForm = () => {
         });
 
         if (response.data.message) {
+          toastify("success", "Updated successfully!");
           navigate("/product");
         }
       } else {
@@ -76,6 +77,7 @@ const ProductForm = () => {
         });
 
         if (response.data.message) {
+          toastify("success", "Created successfully!");
           navigate("/product");
         }
       }
@@ -131,7 +133,6 @@ const ProductForm = () => {
 
   return (
     <div className="bg-white mx-5 my-7 shadow-md rounded-lg p-6">
-      <ToastContainer />
       {loading && <Loading />}
 
       <h2 className="text-2xl font-semibold text-gray-700 mb-6">

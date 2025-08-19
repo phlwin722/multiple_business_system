@@ -43,7 +43,16 @@ class UserController extends Controller
             $token = $user->createToken('access_token')->plainTextToken;
 
             return response()->json([
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'business_id' => $user->business_id,
+                    'image' => asset($user->image),
+                    'position' => $user->position,
+                    'email' => $user->email,
+                    'business_name' => $user->business->business_name ?? null,
+                ],
                 'token' => $token,
             ]);
         } catch (\Exception $e) {
@@ -62,7 +71,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'Logout successfully'
             ], 200);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
