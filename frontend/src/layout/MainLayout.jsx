@@ -4,19 +4,26 @@ import Navbar from "../components/Navbar";
 import { HiDotsVertical } from "react-icons/hi";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MainLayout = () => {
-  const { token, user } = useStateContext();
-  const [isCollapsed, setCollapsed] = useState(false);
+  const { token, user, typePosition, setTypePostion, setToken, setUser } = useStateContext();
+  const [isCollapsed, setCollapsed] = useState(false); 
 
-  if (!token) {
+  if (!token || !user) {
+    setToken(null);
+    setUser(null);
+    setTypePostion(null);
     return <Navigate to="/signin" />;
   }
 
+  if (typePosition == "teller") {
+    return <Navigate to="/teller" />;
+  }  
+
   return (
-    <div className="min-h-screen flex">
+    <div className="flex h-screen overflow-hidden">
       {/* 🟩 Sidebar for large screens */}
       <div
         className={`border-r border-gray-200 shadow-md hidden md:flex flex-col justify-between transition-all duration-300 ${
@@ -53,7 +60,6 @@ const MainLayout = () => {
             isCollapsed ? "" : "pointer-events-none"
           }`}
         >
-          {/* Sidebar drawer */}
           <div
             className={`bg-white w-64 shadow-md h-full flex flex-col justify-between transition-transform duration-300 ${
               isCollapsed ? "translate-x-0" : "-translate-x-full"
@@ -73,8 +79,6 @@ const MainLayout = () => {
               </div>
             </div>
           </div>
-
-          {/* Dark overlay to close sidebar */}
           <div
             className="flex-1 bg-[rgba(0,0,0,0.3)]"
             onClick={() => setCollapsed((prev) => !prev)}
@@ -82,9 +86,18 @@ const MainLayout = () => {
         </div>
       )}
 
-      <div className="bg-gray-100 flex-1">
+      {/* 🟦 Main content area */}
+      <div className="flex flex-col flex-1 h-full bg-gray-100">
+        {/* Navbar stays fixed at the top */}
         <Navbar isCollapsed={isCollapsed} setCollapsed={setCollapsed} />
-        <Outlet />
+
+        {/* Scrollable outlet area */}
+        <div className="flex-1 overflow-auto md:p-4 w-full">
+          <div className="min-w-full overflow-x-auto">
+            <Outlet />
+          </div>
+        </div>
+
         <ToastContainer position="top-center" autoClose={2500} />
       </div>
     </div>

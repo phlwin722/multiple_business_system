@@ -9,7 +9,7 @@ import { IoClose } from "react-icons/io5";
 const Login = () => {
   const URL = "auth";
   const navigate = useNavigate();
-  const { setUser, setToken } = useStateContext();
+  const { setUser, setToken, setTypePostion } = useStateContext();
 
   const [hidden, setHidden] = useState(true);
   const [errors, setErrors] = useState([]);
@@ -36,6 +36,12 @@ const Login = () => {
       if (response.data.user) {
         setUser(response.data.user);
         setToken(response.data.token);
+        setTypePostion(response.data.user.position);
+        if (response.data.user.position === "admin") {
+          navigate("/dashboard");
+        } else {
+          navigate("/teller");
+        }
       }
     } catch (error) {
       if (error.response.status === 422) {
@@ -50,9 +56,7 @@ const Login = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-10">
-      {loading && (
-        <Loading />
-      )}
+      {loading && <Loading />}
 
       <div className="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
         <h2 className="text-3xl font-semibold text-center text-gray-800">
@@ -85,7 +89,8 @@ const Login = () => {
               id="email"
               ref={email}
               className={`border border-gray-300 mt-2 w-full px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-              errors.email ? "border-red-500": "border-gray-300"}`}
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
             />
             {errors?.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -105,7 +110,8 @@ const Login = () => {
                 type={hidden ? "password" : "text"}
                 ref={password}
                 className={`border border-gray-300 w-full py-2 px-4 mt-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none , ${
-                 errors.password ? "border-red-500"  : "border-gray-300"}`}
+                  errors.password ? "border-red-500" : "border-gray-300"
+                }`}
               />
               <span
                 className="absolute inset-y-0 right-0 top-1 pr-3 flex items-center text-gray-600 cursor-pointer"

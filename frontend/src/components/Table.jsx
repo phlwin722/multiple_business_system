@@ -173,7 +173,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
             </div>
           )}
         </div>
-        <div>
+        <div className="ml-3">
           <button
             onClick={handleAddForm}
             className="bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition cursor-pointer"
@@ -203,7 +203,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-left overflow-x-auto">
             <thead className="bg-gray-50 text-gray-700 border-b border-gray-300">
               <tr>
                 <th className="px-4 py-3 w-10">
