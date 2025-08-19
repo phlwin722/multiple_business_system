@@ -19,6 +19,8 @@ axiosClient.interceptors.request.use((response) => {
   try {
     if (error.response.status === 401) {
       localStorage.removeItem('ACCESS_TOKEN')
+      localStorage.removeItem('user_info')
+      localStorage.removeItem('TYPE_POSITION')
       window.location.href='/signin'
     }
   } catch (error) {

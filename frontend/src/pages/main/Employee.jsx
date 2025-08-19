@@ -2,6 +2,7 @@ import Table from "../../components/Table";
 import { useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/ContextProvider";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Employee = () => {
   const { user } = useStateContext();
@@ -20,13 +21,17 @@ const Employee = () => {
       key: "email",
     },
     {
-      name: "Postion",
-      key: "quantity",
+      name: "Position",
+      key: "position",
     },
     {
       name: "Image",
       key: "image",
     },
+    {
+      name: "Status",
+      key: "status",
+    }
   ];
 
   const fetchData = async (business_id = null, search = null) => {
@@ -36,12 +41,12 @@ const Employee = () => {
         response = await axiosClient.post("/employee/index", {
           user_id: user.id,
           business_id: business_id,
-          product_name: search,
+          full_name: search,
         });
       } else {
         response = await axiosClient.post("/employee/index", {
           user_id: user.id,
-          product_name: search,
+          full_name: search,
         });
       }
 

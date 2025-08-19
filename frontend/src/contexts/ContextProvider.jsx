@@ -3,8 +3,10 @@ import { useState, createContext, useContext } from "react";
 const StateContext = createContext({
   user: null,
   token: null,
+  typePosition: null,
   setUser: () => {},
   setToken: () => {},
+  setTypePostion: () => {},
 });
 
 export const ContextProvider = ({ children }) => {
@@ -16,6 +18,8 @@ export const ContextProvider = ({ children }) => {
   });
 
   const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'));
+
+  const [typePosition, _setTypePosition] = useState(localStorage.getItem('TYPE_POSITION'))
 
   const setUser = (user) => {
     _setUser(user);
@@ -32,7 +36,17 @@ export const ContextProvider = ({ children }) => {
     if (token) {
       localStorage.setItem('ACCESS_TOKEN', token);
     } else {
-      localStorage.removeItem('token')
+      localStorage.removeItem('ACCESS_TOKEN')
+    }
+  }
+
+  const setTypePostion = (typePosition) => {
+    _setTypePosition(typePosition);
+
+    if (typePosition) {
+      localStorage.setItem('TYPE_POSITION', typePosition);
+    } else {
+      localStorage.removeItem('TYPE_POSITION')
     }
   }
 
@@ -41,8 +55,10 @@ export const ContextProvider = ({ children }) => {
       value={{
         user,
         token,
+        typePosition,
         setToken,
         setUser,
+        setTypePostion,
       }}
     >
       {children}

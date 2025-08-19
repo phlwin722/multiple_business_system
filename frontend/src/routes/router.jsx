@@ -11,6 +11,8 @@ import Business from '../pages/main/business';
 import Employee from '../pages/main/Employee';
 import EmployeeForm from '../pages/main/EmployeeForm';
 import BusinessForm from '../pages/main/BusinessForm';
+import TellerLayout from '../layout/TellerLayout';
+import Teller from '../pages/teller/Teller';
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,20 @@ const router = createBrowserRouter([
       {
         path: '/employee/form/:id?',
         element: <EmployeeForm />
+      }
+    ],
+  },
+  {
+    path: '/',
+    element: <TellerLayout />,
+    children: [
+      {
+        path: '/',
+        element: <Navigate to='/teller' />
+      },
+      {
+        path: '/teller',
+        element: <Teller />
       }
     ],
   },
