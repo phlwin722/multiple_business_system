@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BussinessRequest;
 use Illuminate\Http\Request;
-use App\Models\Bussines;
+use App\Models\Business;
 use Illuminate\Support\Facades\DB;
 
 class BussinessController extends Controller
 {
     public function index (Request $request) {
         try {
-            $data = Bussines::where('user_id', $request->user_id)
+            $data = Business::where('user_id', $request->user_id)
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($data) {
@@ -35,7 +35,7 @@ class BussinessController extends Controller
 
     public function update (BussinessRequest $bussinessRequest) {
         try {
-            $business = Bussines::findOrFail($bussinessRequest->id);
+            $business = Business::findOrFail($bussinessRequest->id);
             $business->update(['business_name' => $bussinessRequest->business_name]);
 
            if ($bussinessRequest->hasFile('image')) {
@@ -91,7 +91,7 @@ class BussinessController extends Controller
             ],400);
            }
 
-           $deletedCount = Bussines::whereIn('id', $ids)->delete();
+           $deletedCount = Business::whereIn('id', $ids)->delete();
 
            if ($deletedCount > 0) {
             return response()->json([
@@ -110,7 +110,7 @@ class BussinessController extends Controller
     public function insert (BussinessRequest $bussinessRequest) {
         try {
             $data = $bussinessRequest->validated();
-            $bussiness = Bussines::create($data);
+            $business = Business::create($data);
 
             // Process and save the uploaded file
             if ($bussinessRequest->hasFile('image')) {
@@ -118,7 +118,7 @@ class BussinessController extends Controller
                 $filename = time() . '.' . $file->getClientOriginalExtension();
 
                 // define the folder path (inside public directory)
-                $folderPath = public_path('assets/businesses/' . $bussiness->id);
+                $folderPath = public_path('assets/businesses/' . $business->id);
 
                 // Ensure the folder exists
                 if (!file_exists($folderPath)) {
@@ -129,17 +129,15 @@ class BussinessController extends Controller
                 $file->move($folderPath, $filename);
 
                 // correct url public access
-                $filePath = "assets/businesses/{$bussiness->id}/{$filename}";
+                $filePath = "assets/businesses/{$business->id}/{$filename}";
 
                 /// **FIXED:** Update database using Query Builder (no `save()` method)
-                DB::table('bussines')
-                    ->where('id', $bussiness->id)
-                    ->update(['image' => $filePath]);
+                $business->update(['image' => $filePath]);
             }
 
             return response()->json([
                 'message' => "Business created successfully",
-                'data' => $bussiness
+                'data' => $business
             ]);
 
         } catch (\Exception $e) {
@@ -151,7 +149,7 @@ class BussinessController extends Controller
 
     public function find (Request $request) {
         try {
-            $data = Bussines::findOrFail($request->id);
+            $data = Business::findOrFail($request->id);
 
             $image = asset($data->image);
 

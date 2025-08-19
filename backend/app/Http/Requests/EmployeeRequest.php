@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
-class PeopleRequest extends FormRequest
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
+
+class EmployeeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,17 +28,37 @@ class PeopleRequest extends FormRequest
         return [
             'first_name' => 'required|max:25',
             'last_name' => 'required|max:25',
-            'email' => 'requierd|unique:users,email',
-            'password' => [
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($id)
+            ],
+            'password' => $id ? [
+                'nullable',
+                Password::min(8)
+                    ->symbols()
+                    ->mixedCase()
+                    ->numbers()
+                    ->letters()
+            ] : [
                 'required',
                 Password::min(8)
+                    ->symbols()
                     ->mixedCase()
                     ->letters()
-                    ->symbols()
+                    ->numbers()
             ],
             'position' => 'required',
             'image' => 'required',
-            'business_id' => 'required'
+            'user_id' => 'required',
+            'business_id' => 'required',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'business_id.required' => 'The business name field is required.',
         ];
     }
 }

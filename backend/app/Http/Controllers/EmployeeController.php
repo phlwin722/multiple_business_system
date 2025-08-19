@@ -3,46 +3,49 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
+use App\Models\User;
 use App\Models\Business;
-use App\Http\Requests\ProductRequest;
+use App\Http\Requests\EmployeeRequest;
 
-
-class ProductController extends Controller
+class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
         try {
 
-            $query = Product::where('user_id', $request->user_id);
+            $query = User::where('user_id', $request->user_id);
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);
             }
 
-            if ($request->product_name != null) {
-                $query->where('product_name', 'like', '%'. $request->product_name . '%');
+            if ($request->full_name != null) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('first_name', 'like', '%' . $request->full_name . '%')
+                        ->orWhere('last_name', 'like', '%' . $request->full_name . '%');
+                });
             }
 
             // Execute query with ordering
-            $products = $query->orderBy('created_at', 'desc')
+            $employee = $query->orderBy('created_at', 'desc')
                 ->get()
-                ->map(function ($product) {
+                ->map(function ($employeee) {
                     return [
-                        'id' => $product->id,
-                        'product_name' => $product->product_name,
-                        'price' => $product->price,
-                        'quantity' => $product->quantity,
-                        'image' => asset($product->image),
-                        'business_id' => $product->business_id,
-                        'user_id' => $product->user_id,
-                        'business_name' => $product->business->business_name ?? null, // <-- Here
+                        'id' => $employeee->id,
+                        'full_name' => "{$employeee->first_name} {$employeee->last_name}", // <-- Correct
+                        'email' => $employeee->email,
+                        'position' => $employeee->position,
+                        'image' => asset($employeee->image),
+                        'status' => $employeee->status ?? 'Offline', // <-- Corrected logic
+                        'business_id' => $employeee->business_id,
+                        'user_id' => $employeee->user_id,
+                        'business_name' => $employeee->business->business_name ?? null, // <-- Here
                     ];
                 });
 
             return response()->json([
-                'message' => 'Product list retrieved successfully',
-                'data' => $products,
+                'message' => 'Employee list retrieved successfully',
+                'data' => $employee,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -51,36 +54,43 @@ class ProductController extends Controller
         }
     }
 
-    public function update(ProductRequest $productRequest)
+    public function update(EmployeeRequest $employeeRequest)
     {
         try {
-            $product = Product::findOrFail($productRequest->id);
-            $product->update(
+            $employee = User::findOrFail($employeeRequest->id);
+            $employee->update(
                 [
-                    'product_name' => $productRequest->product_name,
-                    'price' => $productRequest->price,
-                    'quantity' => $productRequest->quantity,
-                    'business_id' => $productRequest->business_id
+                    'first_name' => $employeeRequest->first_name,
+                    'last_name' => $employeeRequest->last_name,
+                    'email' => $employeeRequest->email,
+                    'position' => $employeeRequest->position,
+                    'business_id' => $employeeRequest->business_id
                 ],
             );
 
-            if ($productRequest->hasFile('image')) {
+            if ($employeeRequest->has('password')) {
+                $employee->update([
+                    'password' => bcrypt($employeeRequest->password)
+                ]);
+            }
+
+            if ($employeeRequest->hasFile('image')) {
 
                 // delete the old message if it exist
-                if ($product->image) {
-                    $oldImagePath = public_path($product->image);
+                if ($employee->image) {
+                    $oldImagePath = public_path($employee->image);
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath); // Delete the file
                     }
                 }
 
                 // Process and save the uploaded file
-                if ($productRequest->hasFile('image')) {
-                    $file = $productRequest->file('image');
+                if ($employeeRequest->hasFile('image')) {
+                    $file = $employeeRequest->file('image');
                     $filename = time() . '.' . $file->getClientOriginalExtension();
 
                     // define the folder path (inside public directory)
-                    $folderPath = public_path('assets/product/' . $productRequest->id);
+                    $folderPath = public_path('assets/product/' . $employeeRequest->id);
 
                     // Ensure the folder exists
                     if (!file_exists($folderPath)) {
@@ -91,9 +101,9 @@ class ProductController extends Controller
                     $file->move($folderPath, $filename);
 
                     // correct url public access
-                    $filePath = "assets/product/{$productRequest->id}/{$filename}";
+                    $filePath = "assets/product/{$employeeRequest->id}/{$filename}";
 
-                    $product->update(['image' => $filePath]);
+                    $employee->update(['image' => $filePath]);
                 }
             }
 
@@ -118,7 +128,7 @@ class ProductController extends Controller
                 ], 400);
             }
 
-            $deletedCount = Product::whereIn('id', $ids)->delete();
+            $deletedCount = User::whereIn('id', $ids)->delete();
 
             if ($deletedCount > 0) {
                 return response()->json([
@@ -133,19 +143,19 @@ class ProductController extends Controller
         }
     }
 
-    public function insert(ProductRequest $productRequest)
+    public function insert(EmployeeRequest $employeeRequest)
     {
         try {
-            $data = $productRequest->validated();
-            $product = Product::create($data);
+            $data = $employeeRequest->validated();
+            $product = User::create($data);
 
             // Process and save the uploaded file
-            if ($productRequest->hasFile('image')) {
-                $file = $productRequest->file('image');
+            if ($employeeRequest->hasFile('image')) {
+                $file = $employeeRequest->file('image');
                 $filename = time() . '.' . $file->getClientOriginalExtension();
 
                 // define the folder path (inside public directory)
-                $folderPath = public_path('assets/product/' . $product->id);
+                $folderPath = public_path('assets/employee/' . $product->id);
 
                 // Ensure the folder exists
                 if (!file_exists($folderPath)) {
@@ -156,7 +166,7 @@ class ProductController extends Controller
                 $file->move($folderPath, $filename);
 
                 // correct url public access
-                $filePath = "assets/product/{$product->id}/{$filename}";
+                $filePath = "assets/employee/{$product->id}/{$filename}";
 
                 /// **FIXED:** Update database using Query Builder (no `save()` method)
                 $product->update(['image' => $filePath]);
@@ -176,7 +186,7 @@ class ProductController extends Controller
     public function find(Request $request)
     {
         try {
-            $data = Product::findOrFail($request->id);
+            $data = User::findOrFail($request->id);
 
             $image = asset($data->image);
 
@@ -184,9 +194,10 @@ class ProductController extends Controller
                 'message' => "Business retrieved successfully",
                 'data' => [
                     'id' => $data->id,
-                    'product_name' => $data->product_name,
-                    'price' => $data->price,
-                    'quantity' => $data->quantity,
+                    'first_name' => $data->first_name,
+                    'last_name' => $data->last_name,
+                    'email' => $data->email,
+                    'position' => $data->position,
                     'image' => $image,
                     'business_id' => $data->business_id,
                     'user_id' => $data->user_id

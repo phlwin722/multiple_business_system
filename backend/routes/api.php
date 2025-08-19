@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\BussinessController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -36,7 +36,7 @@ Route::prefix('product')->middleware('auth:sanctum')->controller(ProductControll
     Route::post('fetchBusinesses', 'fetchBusinesses');
 });
 
-Route::prefix('employee')->middleware('auth:sanctum')->controller(ProductController::class)->group(function () {
+Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeController::class)->group(function () {
     Route::post('/create', 'insert');
     Route::post('/index', 'index');
     Route::post('/delete', 'delete');

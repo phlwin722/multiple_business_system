@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Business;
 
 class User extends Authenticatable
 {
@@ -24,7 +25,9 @@ class User extends Authenticatable
         'email',
         'password',
         'position',
+        'image',
         'business_id',
+        'user_id',
         'status',
     ];
 
@@ -49,5 +52,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // In App\Models\User
+
+    public function business()
+    {
+        return $this->belongsTo(Business::class, 'business_id');
     }
 }
