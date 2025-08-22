@@ -6,27 +6,22 @@ import Sidebar from "../components/Sidebar";
 import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaUserCog } from "react-icons/fa";
 
 const MainLayout = () => {
-  const { token, user, typePosition, setTypePostion, setToken, setUser } = useStateContext();
-  const [isCollapsed, setCollapsed] = useState(false); 
+  const { token, user } = useStateContext();
+  const [isCollapsed, setCollapsed] = useState(false);
+  const [myAccount, setMyAccount] = useState(false);
 
-  if (!token || !user) {
-    setToken(null);
-    setUser(null);
-    setTypePostion(null);
+  if (!token) {
     return <Navigate to="/signin" />;
   }
 
-  if (typePosition == "teller") {
-    return <Navigate to="/teller" />;
-  }  
-
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="min-h-screen flex">
       {/* 🟩 Sidebar for large screens */}
       <div
-        className={`border-r border-gray-200 shadow-md hidden md:flex flex-col justify-between transition-all duration-300 ${
+        className={`border-r border-gray-300 shadow-md hidden md:flex flex-col justify-between transition-all duration-300 ${
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
@@ -40,14 +35,24 @@ const MainLayout = () => {
         >
           <img src="" alt="" className="w-10 h-10 rounded-md" />
           {!isCollapsed && (
-            <div className="flex justify-between items-center w-52 ml-3">
+            <div className="flex justify-between items-center w-52 ml-3 relative">
               <div className="leading-4">
                 <h4 className="font-semibold">{`${user.first_name} ${user.last_name}`}</h4>
                 <span className="text-sm text-gray-600 truncate block max-w-[160px]">
                   {user.email}
                 </span>
               </div>
-              <HiDotsVertical className="cursor-pointer" />
+              {myAccount && (
+                <div className="absolute -top-12 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <FaUserCog /> <span>My account</span>{" "}
+                  </div>
+                </div>
+              )}
+              <HiDotsVertical
+                onClick={() => setMyAccount((prev) => !prev)}
+                className="cursor-pointer"
+              />
             </div>
           )}
         </div>
@@ -56,29 +61,47 @@ const MainLayout = () => {
       {/* 🟥 Sidebar overlay for small screens (mobile) */}
       {isCollapsed && (
         <div
+          onClick={() => (setCollapsed(false), setMyAccount(false))}
           className={`fixed inset-0 z-[9999] flex md:hidden ${
             isCollapsed ? "" : "pointer-events-none"
           }`}
         >
+          {/* Sidebar drawer */}
           <div
             className={`bg-white w-64 shadow-md h-full flex flex-col justify-between transition-transform duration-300 ${
               isCollapsed ? "translate-x-0" : "-translate-x-full"
             }`}
           >
             <Sidebar isCollapsed={false} setCollapsed={setCollapsed} />
-            <div className="flex p-3 border-t border-gray-200 items-center">
+            <div className="flex p-3 border-t border-gray-200 items-center relative">
               <img src="" alt="" className="w-10 h-10 rounded-md bg-gray-300" />
               <div className="flex justify-between items-center w-52 ml-3">
                 <div className="leading-4">
                   <h4 className="font-semibold">{`${user.first_name} ${user.last_name}`}</h4>
-                  <span className="text-sm text-gray-600 truncate block max-w-[160px]">
+                  <span className="text-s  text-gray-600 truncate block max-w-[160px]">
                     {user.email}
                   </span>
                 </div>
-                <HiDotsVertical className="cursor-pointer" />
+
+                {myAccount && isCollapsed (
+                  <div className="absolute -top-9 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <FaUserCog /> <span>My account</span>{" "}
+                    </div>
+                  </div>
+                )}
+                <HiDotsVertical
+                  onClick={(e) => {
+                    e.stopPropagation() // prevents parent click handler
+                    setMyAccount((prev) => !prev)
+                  }}
+                  className="cursor-pointer"
+                />
               </div>
             </div>
           </div>
+
+          {/* Dark overlay to close sidebar */}
           <div
             className="flex-1 bg-[rgba(0,0,0,0.3)]"
             onClick={() => setCollapsed((prev) => !prev)}
@@ -86,19 +109,16 @@ const MainLayout = () => {
         </div>
       )}
 
-      {/* 🟦 Main content area */}
-      <div className="flex flex-col flex-1 h-full bg-gray-100">
-        {/* Navbar stays fixed at the top */}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col bg-gray-100 h-screen">
+        {/* Navbar */}
         <Navbar isCollapsed={isCollapsed} setCollapsed={setCollapsed} />
-
-        {/* Scrollable outlet area */}
-        <div className="flex-1 overflow-auto md:p-4 w-full">
-          <div className="min-w-full overflow-x-auto">
-            <Outlet />
-          </div>
-        </div>
-
         <ToastContainer position="top-center" autoClose={2500} />
+
+        {/* ✅ Outlet - scrollable content area */}
+        <div className="flex-1 overflow-y-auto">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

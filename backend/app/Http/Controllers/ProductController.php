@@ -13,19 +13,20 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-
-            $query = Product::where('user_id', $request->user_id);
+            // Initialize query builder
+            $query = Product::query();
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);
             }
 
             if ($request->product_name != null) {
-                $query->where('product_name', 'like', '%'. $request->product_name . '%');
+                $query->where('product_name', 'like', '%' . $request->product_name . '%');
             }
 
             // Execute query with ordering
-            $products = $query->orderBy('created_at', 'desc')
+            $products =  $query->with('business')
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($product) {
                     return [
@@ -35,7 +36,6 @@ class ProductController extends Controller
                         'quantity' => $product->quantity,
                         'image' => asset($product->image),
                         'business_id' => $product->business_id,
-                        'user_id' => $product->user_id,
                         'business_name' => $product->business->business_name ?? null, // <-- Here
                     ];
                 });

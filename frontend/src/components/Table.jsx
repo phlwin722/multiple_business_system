@@ -51,9 +51,9 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const handleAddForm = async () => {
     if (type) {
       if (listBusiness.length == 0) {
-        if (url === '/employee') {
+        if (url === "/employee") {
           toastify("error", "Please create business to proceed add employee");
-        } else if (url === '/product') {
+        } else if (url === "/product") {
           toastify("error", "Please create business to proceed add product");
         }
       } else {
@@ -68,7 +68,6 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     const delayDebounce = setTimeout(() => {
       if (type) {
         fetchData(selectedBusinessId, searchValue);
-        console.log('erch', searchValue)
       }
     }, 500); // delay in ms
 
@@ -99,90 +98,76 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     <div>
       <Modal
         isOpen={isModalOpen}
-        title="Delete"
-        message="Are you sure do you want to delete?"
+        title="Delete Confirmation"
+        backgroundBtn= "bg-red-500 hover:bg-red-600"
+        messageBtn="Delete"
+        message="Are you sure you want to delete this item? This action cannot be undone."
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleDelete}
       />
 
-      <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex justify-between items-center">
-        <div>
-          {type && (
-            <div className="space-x-4  flex">
-              {/* Select with Floating Label */}
-              <div className="relative w-full md:w-52">
-                <select
-                  id="business"
-                  value={selectedBusinessId}
-                  onChange={(e) => setSelectedBusinessId(e.target.value)}
-                  className="peer block w-full appearance-none border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {listBusiness.length > 0 ? (
-                    <>
-                      <option value="" hidden></option>
-                      <option value="0">All</option>
-                      {listBusiness.map((business) => (
-                        <option
-                          className="border border-gray-300 w-50"
-                          key={business.id}
-                          value={business.id}
-                        >
-                          {business.business_name}
-                        </option>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <option value="" hidden></option>
-                    </>
-                  )}
-                </select>
-                <label
-                  htmlFor="business"
-                  className={`
-             absolute left-2 top-3  text-gray-500 transition-all pointer-events-none
-            peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600
-            ${selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""}
-          `}
-                >
-                  Select Business
-                </label>
-              </div>
-
-              {/* Search with Floating Label */}
-              <div className="relative w-full md:w-64">
-                <input
-                  type="search"
-                  id="search"
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder=""
-                />
-                <label
-                  htmlFor="search"
-                  className={`
-            absolute left-2 top-3  text-gray-500 transition-all pointer-events-none
-            peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600
-            ${searchValue ? "text-xs top-[4px] text-blue-600" : ""}
-          `}
-                >
-                  Search
-                </label>
-              </div>
+      <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex flex-col md:flex-row md:justify-between gap-4 md:items-center">
+        {type && (
+          <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4">
+            {/* Select */}
+            <div className="relative w-full sm:w-52">
+              <select
+                id="business"
+                value={selectedBusinessId}
+                onChange={(e) => setSelectedBusinessId(e.target.value)}
+                className="peer block w-full appearance-none border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" hidden></option>
+                <option value="0">All</option>
+                {listBusiness.map((business) => (
+                  <option key={business.id} value={business.id}>
+                    {business.business_name}
+                  </option>
+                ))}
+              </select>
+              <label
+                htmlFor="business"
+                className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+                  selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""
+                }`}
+              >
+                Select Business
+              </label>
             </div>
-          )}
-        </div>
-        <div className="ml-3">
+
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <input
+                type="search"
+                id="search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder=""
+              />
+              <label
+                htmlFor="search"
+                className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+                  searchValue ? "text-xs top-[4px] text-blue-600" : ""
+                }`}
+              >
+                Search
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Add Button */}
+        <div className="w-full sm:w-auto">
           <button
             onClick={handleAddForm}
-            className="bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition cursor-pointer"
+            className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition"
           >
-            {" "}
-            Add{" "}
+            Add
           </button>
         </div>
       </div>
+
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         {/* Selected Rows Info */}
         {selectedRows.length > 0 && (
@@ -242,6 +227,12 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                             alt={row.business_name}
                             className="w-16 h-16 object-cover rounded"
                           />
+                        ) : col.key === "quantity" ? (
+                          row[col.key] === 0 ? (
+                            <p className="text-red-500 font-semibold">Out of stock</p>
+                          ) : (
+                            row[col.key]
+                          )
                         ) : (
                           row[col.key]
                         )}
