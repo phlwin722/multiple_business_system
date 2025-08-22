@@ -118,7 +118,7 @@ const BusinessForm = () => {
   }, [id]);
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mx-5 my-7">
+    <div className="bg-white shadow-md rounded-lg p-6 mx-5 my-7 overflow-y-auto">
       <ToastContainer />
       {loading && <Loading />}
 

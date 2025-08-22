@@ -42,6 +42,12 @@ class UserController extends Controller
             $user = Auth::user();
             $token = $user->createToken('access_token')->plainTextToken;
 
+            $updateStatus = User::findOrFail($user->id);
+            $updateStatus->update([
+                'status' => 'Online',
+                'updated_at' => now(),
+            ]);
+
             return response()->json([
                 'user' => [
                     'id' => $user->id,
@@ -51,6 +57,7 @@ class UserController extends Controller
                     'image' => asset($user->image),
                     'position' => $user->position,
                     'email' => $user->email,
+                    'business_id' => $user->business_id,
                     'business_name' => $user->business->business_name ?? null,
                 ],
                 'token' => $token,
@@ -66,6 +73,13 @@ class UserController extends Controller
     {
         try {
             $user = $request->user();
+
+            $updateStatus = User::findOrFail($request->id);
+            $updateStatus->update([
+                'status' => 'Offline',
+                'updated_at' => now(),
+            ]);
+            
             $user->currentAccessToken()->delete();
 
             return response()->json([

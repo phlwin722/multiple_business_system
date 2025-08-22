@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
 
 Route::get('/user', function (Request $request) {
@@ -44,4 +45,9 @@ Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeContro
     Route::post('/index', 'index');
     Route::post('/find', 'find');
     Route::post('fetchBusinesses', 'fetchBusinesses');
+});
+
+Route::prefix('sale')->middleware('auth:sanctum')->controller(SaleController::class)->group(function () {
+    Route::post('/create', 'insert');
+    Route::post('/indexTeller', 'indexTeller');
 });

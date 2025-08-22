@@ -36,4 +36,10 @@ class ProductRequest extends FormRequest
             'user_id' => 'required',
         ];
     }
+
+    public function messages () {
+        return [
+            'business_id.required' => 'The business field is required.'
+        ];
+    }
 }

@@ -15,7 +15,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
 
   const [loading, setLoading] = useState(null);
 
-  const { setUser, setToken } = useStateContext();
+  const { user ,setTypePostion, setUser, setToken } = useStateContext();
 
   const menuItems = [
     {
@@ -54,9 +54,12 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      await axiosClient.post(`${URL}/logout`);
+      await axiosClient.post(`${URL}/logout`, {
+        id: user.id
+      });
       setToken(null);
       setUser(null);
+      setTypePostion(null)
     } catch (error) {
       console.log(error);
     } finally {
