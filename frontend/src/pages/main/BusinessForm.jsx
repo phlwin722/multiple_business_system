@@ -117,6 +117,10 @@ const BusinessForm = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    document.title = "Business Form - Muibu";
+  }, []);
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6 mx-5 my-7 overflow-y-auto">
       <ToastContainer />
@@ -192,7 +196,7 @@ const BusinessForm = () => {
         <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
-            onClick={() => navigate("/bussiness")}
+            onClick={() => navigate("/business")}
             className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded transition"
           >
             Cancel
@@ -207,6 +211,6 @@ const BusinessForm = () => {
       </form>
     </div>
   );
-}
+};
 
-export default BusinessForm
+export default BusinessForm;

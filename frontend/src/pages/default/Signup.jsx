@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/loading";
@@ -47,6 +47,10 @@ const Signup = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    document.title = 'Sign up - Muibu';
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">

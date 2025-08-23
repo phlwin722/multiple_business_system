@@ -83,17 +83,18 @@ const MainLayout = () => {
                   </span>
                 </div>
 
-                {myAccount && isCollapsed (
-                  <div className="absolute -top-9 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <FaUserCog /> <span>My account</span>{" "}
+                {myAccount &&
+                  isCollapsed(
+                    <div className="absolute -top-9 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <FaUserCog /> <span>My account</span>{" "}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 <HiDotsVertical
                   onClick={(e) => {
-                    e.stopPropagation() // prevents parent click handler
-                    setMyAccount((prev) => !prev)
+                    e.stopPropagation(); // prevents parent click handler
+                    setMyAccount((prev) => !prev);
                   }}
                   className="cursor-pointer"
                 />
@@ -113,10 +114,10 @@ const MainLayout = () => {
       <div className="flex-1 flex flex-col bg-gray-100 h-screen">
         {/* Navbar */}
         <Navbar isCollapsed={isCollapsed} setCollapsed={setCollapsed} />
-        <ToastContainer position="top-center" autoClose={2500} />
 
         {/* ✅ Outlet - scrollable content area */}
         <div className="flex-1 overflow-y-auto">
+          <ToastContainer position="top-center" autoClose={2500} />
           <Outlet />
         </div>
       </div>

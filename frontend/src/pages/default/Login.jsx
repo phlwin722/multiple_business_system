@@ -1,5 +1,5 @@
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../axiosClient";
 import Loading from "../../components/loading";
@@ -53,6 +53,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    document.title = 'Sign in - Muibu';
+  }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-10">
@@ -123,6 +127,10 @@ const Login = () => {
             {errors?.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
+
+            <div className="mt-3 text-end">
+              <p onClick={() => navigate('/forgetpassword')} className="text-blue-500 hover:underline cursor-pointer text-sm">Forget Password?</p>
+            </div>
             {/* Sign up link */}
             <div className="text-sm text-gray-600 text-center mt-3">
               Don't have and account?

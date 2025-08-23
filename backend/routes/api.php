@@ -15,6 +15,8 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->controller(UserController::class)->group(function () {
     Route::post('/create', 'register');
     Route::post('/signin', 'login');
+    Route::post('/email-verification', 'email');
+    Route::post('/change-password', 'UpdatePassword');
     Route::middleware('auth:sanctum')->post('/logout', 'logout');
 });
 

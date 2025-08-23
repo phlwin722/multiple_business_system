@@ -56,6 +56,7 @@ const Product = () => {
 
   useEffect(() => {
     fetchData();
+    document.title = 'Product - Muibu'
   }, []);
 
   return (

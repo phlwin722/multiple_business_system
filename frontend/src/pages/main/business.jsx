@@ -36,6 +36,7 @@ const Business = () => {
   };
   useEffect(() => {
     fetchData();
+    document.title = 'Business - Muibu'
   }, []);
 
   useEffect(() => {
