@@ -39,7 +39,12 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
       icon: <MdOutlineProductionQuantityLimits size={23}/>
     },
     {
-      name: "Settings",
+      name: "Attendance",
+      path: "/settings",
+      icon: <FaCog size={23} />,
+    },
+    {
+      name: "Sales",
       path: "/settings",
       icon: <FaCog size={23} />,
     },
