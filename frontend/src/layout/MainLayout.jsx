@@ -1,5 +1,5 @@
 import { useStateContext } from "../contexts/ContextProvider";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { HiDotsVertical } from "react-icons/hi";
 import Sidebar from "../components/Sidebar";
@@ -9,12 +9,21 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaUserCog } from "react-icons/fa";
 
 const MainLayout = () => {
-  const { token, user } = useStateContext();
+  const { token, user, typePosition, setTypePostion, setToken, setUser } =
+    useStateContext();
   const [isCollapsed, setCollapsed] = useState(false);
   const [myAccount, setMyAccount] = useState(false);
+  const navigate = useNavigate();
 
-  if (!token) {
+  if (!token || !user) {
+    setToken(null);
+    setUser(null);
+    setTypePostion(null);
     return <Navigate to="/signin" />;
+  }
+
+  if (typePosition == "teller") {
+    return <Navigate to="/teller" />;
   }
 
   return (
@@ -43,9 +52,15 @@ const MainLayout = () => {
                 </span>
               </div>
               {myAccount && (
-                <div className="absolute -top-12 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
+                <div
+                  onClick={() => {
+                    navigate("/my-account"), setMyAccount(false);
+                  }}
+                  className="cursor-pointer absolute -top-12 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50"
+                >
                   <div className="flex items-center gap-2 text-gray-700">
-                    <FaUserCog /> <span>My account</span>{" "}
+                    <FaUserCog />{" "}
+                    <span className="cursor-pointer ">My account</span>{" "}
                   </div>
                 </div>
               )}
@@ -83,14 +98,19 @@ const MainLayout = () => {
                   </span>
                 </div>
 
-                {myAccount &&
-                  isCollapsed(
-                    <div className="absolute -top-9 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50">
-                      <div className="flex items-center gap-2 text-gray-700">
-                        <FaUserCog /> <span>My account</span>{" "}
-                      </div>
+                {myAccount && (
+                  <div
+                    onClick={() => {
+                      navigate("/my-account"), setMyAccount(false);
+                    }}
+                    className="cursor-pointer absolute -top-9 bg-gray-300 hover:bg-gray-300 -right-15 mt-2 bg-white shadow-md rounded p-2 z-50"
+                  >
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <FaUserCog />{" "}
+                      <span className="cursor-pointer ">My account</span>{" "}
                     </div>
-                  )}
+                  </div>
+                )}
                 <HiDotsVertical
                   onClick={(e) => {
                     e.stopPropagation(); // prevents parent click handler

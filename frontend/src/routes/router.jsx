@@ -14,6 +14,7 @@ import BusinessForm from '../pages/main/BusinessForm';
 import TellerLayout from '../layout/TellerLayout';
 import Teller from '../pages/teller/Teller';
 import ForgetPassword from '../pages/default/ForgetPassword';
+import MyAccount from '../pages/main/MyAccount';
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: '/employee/form/:id?',
         element: <EmployeeForm />
+      },
+      {
+        path: '/my-account',
+        element: <MyAccount />
       }
     ],
   },
