@@ -2,7 +2,6 @@ import Table from "../../components/Table";
 import { useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/ContextProvider";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Employee = () => {
   const { user } = useStateContext();
@@ -60,6 +59,7 @@ const Employee = () => {
 
   useEffect(() => {
     fetchData();
+    document.title = "Employee - Muibu"
   }, []);
 
   return (

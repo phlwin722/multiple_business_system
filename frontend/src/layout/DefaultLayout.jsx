@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
+import { ToastContainer } from "react-toastify";
 
 const DefaultLayout = () => {
   const { token, typePosition } = useStateContext();
@@ -14,6 +15,7 @@ const DefaultLayout = () => {
 
   return (
     <>
+      <ToastContainer />
       <Outlet />
     </>
   );

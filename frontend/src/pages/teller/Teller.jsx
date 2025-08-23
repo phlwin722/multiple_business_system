@@ -6,7 +6,7 @@ import toastify from "../../components/toastify";
 import Modal from "../../components/Modal";
 import PlaceholderLoadingTeller from "../../components/PlaceholderLoadingTeller";
 
-const Teller = ({}) => {
+const Teller = () => {
   const urlProduct = "/product";
 
   const { user } = useStateContext();
@@ -134,7 +134,8 @@ const Teller = ({}) => {
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("order") || "[]");
-    setOrderList(stored);
+    setOrderList(stored); 
+    document.title = 'Teller - Muibu'
   }, []);
 
   return (

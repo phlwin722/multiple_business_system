@@ -139,6 +139,8 @@ const EmployeeForm = () => {
       fetchData();
     }
     fetchBusinesses();
+
+    document.title = 'Employee Form = Muibu'
   }, []);
 
   return (

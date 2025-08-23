@@ -13,6 +13,7 @@ import EmployeeForm from '../pages/main/EmployeeForm';
 import BusinessForm from '../pages/main/BusinessForm';
 import TellerLayout from '../layout/TellerLayout';
 import Teller from '../pages/teller/Teller';
+import ForgetPassword from '../pages/default/ForgetPassword';
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: '/signup',
         element: <Signup />
+      },
+      {
+        path: '/forgetpassword',
+        element: <ForgetPassword />
       }
     ],
   },

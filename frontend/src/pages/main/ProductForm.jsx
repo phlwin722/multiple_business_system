@@ -129,6 +129,7 @@ const ProductForm = () => {
       fetchData();
     }
     fetchBusinesses();
+    document.title = 'Product Form - Muibu'
   }, []);
 
   return (
