@@ -42,7 +42,7 @@ const MainLayout = () => {
             isCollapsed ? "justify-center" : ""
           }`}
         >
-          <img src="" alt="" className="w-10 h-10 rounded-md" />
+          <img src={user.image} alt="" className="w-10 h-10 rounded-md" />
           {!isCollapsed && (
             <div className="flex justify-between items-center w-52 ml-3 relative">
               <div className="leading-4">
@@ -89,7 +89,7 @@ const MainLayout = () => {
           >
             <Sidebar isCollapsed={false} setCollapsed={setCollapsed} />
             <div className="flex p-3 border-t border-gray-200 items-center relative">
-              <img src="" alt="" className="w-10 h-10 rounded-md bg-gray-300" />
+              <img src={user.image} alt="" className="w-10 h-10 rounded-md bg-gray-300" />
               <div className="flex justify-between items-center w-52 ml-3">
                 <div className="leading-4">
                   <h4 className="font-semibold">{`${user.first_name} ${user.last_name}`}</h4>

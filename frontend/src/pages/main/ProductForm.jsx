@@ -47,8 +47,14 @@ const ProductForm = () => {
 
       const formData = new FormData();
       formData.append("product_name", product_name.current.value);
-      formData.append("price", price.current.value ? parseFloat(price.current.value) : '');
-      formData.append("quantity", quantity.current.value ? parseInt(quantity.current.value) : "");
+      formData.append(
+        "price",
+        price.current.value ? parseFloat(price.current.value) : ""
+      );
+      formData.append(
+        "quantity",
+        quantity.current.value ? parseInt(quantity.current.value) : ""
+      );
       formData.append("business_id", business.current.value);
       formData.append("user_id", user.id);
 
@@ -57,8 +63,8 @@ const ProductForm = () => {
       }
 
       if (id) {
-        formData.append('id', productID)
-        
+        formData.append("id", productID);
+
         const response = await axiosClient.post(`/product/update`, formData, {
           headers: {
             "Content-type": "multipart/form-data",
@@ -117,7 +123,7 @@ const ProductForm = () => {
         business.current.value = response.data.data.business_id;
         setImagePreview(response.data.data.image);
         setImageFile(response.data.data.image);
-        setProductID(response.data.data.id)
+        setProductID(response.data.data.id);
       }
     } catch (error) {
       console.log(error);
@@ -129,7 +135,7 @@ const ProductForm = () => {
       fetchData();
     }
     fetchBusinesses();
-    document.title = 'Product Form - Muibu'
+    document.title = "Product Form - Muibu";
   }, []);
 
   return (
@@ -141,7 +147,9 @@ const ProductForm = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="product_name">Product name</label>
+          <label htmlFor="product_name" className="font-medium text-gray-800">
+            Product name
+          </label>
           <input
             type="text"
             id="product_name"
@@ -158,7 +166,9 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label htmlFor="price">Price</label>
+          <label htmlFor="price" className="font-medium text-gray-800">
+            Price
+          </label>
           <input
             type="number"
             id="price"
@@ -173,7 +183,9 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label htmlFor="quantity">Quantity</label>
+          <label htmlFor="quantity" className="font-medium text-gray-800">
+            Quantity
+          </label>
           <input
             type="number"
             id="quantity"
@@ -188,7 +200,9 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label htmlFor="quantity">Choose business</label>
+          <label htmlFor="quantity" className="font-medium text-gray-800">
+            Choose business
+          </label>
           <select
             ref={business}
             className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
@@ -217,9 +231,7 @@ const ProductForm = () => {
 
         {/* Image Upload (Click on Image) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Business Image
-          </label>
+          <label className="block font-medium text-gray-700 mb-2">Image</label>
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${

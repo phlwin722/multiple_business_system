@@ -10,6 +10,7 @@ use App\Http\Requests\SignInRequest;
 use App\Models\User;
 use App\Mail\ForgetPasswordMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -52,13 +53,18 @@ class UserController extends Controller
                 'updated_at' => now(),
             ]);
 
+            Attendance::create([
+                'user_id' => $user->id,
+                'time_in' => now()
+            ]);
+
             return response()->json([
                 'user' => [
                     'id' => $user->id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'business_id' => $user->business_id,
-                    'image' => asset($user->image),
+                    'image' => $user->image ? asset($user->image) : null,
                     'position' => $user->position,
                     'email' => $user->email,
                     'business_id' => $user->business_id,
@@ -85,6 +91,17 @@ class UserController extends Controller
             ]);
 
             $user->currentAccessToken()->delete();
+
+            $latest = Attendance::where('user_id', $request->id)
+                ->whereNull('time_out')
+                ->orderByDesc('time_in')
+                ->first();
+
+            if ($latest) {
+                $latest->update([
+                    'time_out' => now()
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Logout successfully'
@@ -134,20 +151,74 @@ class UserController extends Controller
         }
     }
 
-    public function UpdatePassword(SetupPasswordRequest $setupPasswordRequest)
+    public function UpdatePassword(SetupPasswordRequest $request)
     {
         try {
-            $data = $setupPasswordRequest->validated();
+            $data = $request->validated();
+            $userID = $request->id ? $request->id : $request->user_id;
 
-            $user = User::where('id', $data['user_id'])->update([
-                'password' => bcrypt($data['new_password'])
+            // Use the authenticated user instead of trusting user input
+            $user = User::findOrFail($userID);
+
+            $user->password = bcrypt($data['new_password']);
+            $user->save();
+
+            return response()->json([
+                'message' => 'Password updated successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function UserUpdate(SignUpRequest $signupRequest)
+    {
+        try {
+            $data = $signupRequest->validated();
+            $user = User::findOrFail($signupRequest->id);
+            $user->update([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email']
             ]);
 
-            if ($user) {
-                return response()->json([
-                    'message' => 'Updated sucessfully.'
-                ]);
+            if ($signupRequest->hasFile('image')) {
+
+                // delete old image if exist
+                if ($user->image) {
+                    $oldImagePath = public_path($user->image);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath); // delete the file
+                    }
+                }
+
+                // process to save the image
+                $file = $signupRequest->file('image');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+
+                // defint the folder path
+                $folderPath = public_path('assets/employee/' . $user->id);
+
+                // ensure the folder exits
+                if (!file_exists($folderPath)) {
+                    mkdir($folderPath, 0755, true);
+                }
+
+                // move file to filder
+                $file->move($folderPath, $filename);
+
+                // correct url public access
+                $filePath = "assets/employee/{$user->id}/{$filename}";
+
+                $user->update(['image' => $filePath]);
             }
+
+            return response()->json([
+                'message' => 'Updated successfully'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()

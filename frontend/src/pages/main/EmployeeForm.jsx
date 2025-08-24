@@ -140,7 +140,7 @@ const EmployeeForm = () => {
     }
     fetchBusinesses();
 
-    document.title = 'Employee Form = Muibu'
+    document.title = "Employee Form = Muibu";
   }, []);
 
   return (
@@ -152,7 +152,9 @@ const EmployeeForm = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="firtName">First name</label>
+          <label className="font-medium text-gray-800" htmlFor="firtName">
+            First name
+          </label>
           <input
             type="text"
             id="firtName"
@@ -167,7 +169,9 @@ const EmployeeForm = () => {
         </div>
 
         <div>
-          <label htmlFor="lastName">Last name</label>
+          <label htmlFor="lastName" className="font-medium text-gray-800">
+            Last name
+          </label>
           <input
             type="text"
             id="lastName"
@@ -182,7 +186,9 @@ const EmployeeForm = () => {
         </div>
 
         <div>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email" className="font-medium text-gray-800">
+            Email
+          </label>
           <input
             type="text"
             id="email"
@@ -197,7 +203,9 @@ const EmployeeForm = () => {
         </div>
 
         <div>
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password" className="font-medium text-gray-800">
+            Password
+          </label>
           <div className="relative">
             <span
               onClick={() => setHidden(!hidden)}
@@ -220,7 +228,9 @@ const EmployeeForm = () => {
         </div>
 
         <div>
-          <label htmlFor="position">Choose Position</label>
+          <label htmlFor="position" className="font-medium text-gray-800">
+            Choose Position
+          </label>
           <select
             id="position"
             ref={position}
@@ -240,7 +250,9 @@ const EmployeeForm = () => {
         </div>
 
         <div>
-          <label htmlFor="business_id">Choose business</label>
+          <label htmlFor="business_id" className="font-medium text-gray-800">
+            Choose business
+          </label>
           <select
             id="business_id"
             ref={business}
@@ -270,9 +282,7 @@ const EmployeeForm = () => {
 
         {/* Image Upload (Click on Image) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Employee Image
-          </label>
+          <label className="block font-medium text-gray-700 mb-2">Image</label>
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
