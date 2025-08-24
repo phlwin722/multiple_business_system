@@ -4,6 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Validator;
+use App\Models\User;
 
 class SetupPasswordRequest extends FormRequest
 {
@@ -22,8 +25,14 @@ class SetupPasswordRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->input('id');
         return [
-            'user_id' => 'required',
+            'user_id' => $id ? [] : [
+                'required'
+            ],
+            'current_password' => $id ? [
+                'required',
+            ] : [],
             'new_password' => [
                 'required',
                 Password::min(8)
@@ -40,5 +49,21 @@ class SetupPasswordRequest extends FormRequest
                 'same:new_password'
             ],
         ];
+    }
+
+    /**
+     * Custom validator for comparing current password.
+     */
+    public function withValidator(Validator $validator)
+    {
+        $validator->after(function ($validator) {
+            // Fetch the user by ID
+            $user = User::find($this->input('id'));
+
+            // Check if password matches the stored hash
+            if (!$user || !Hash::check($this->input('current_password'), $user->password)) {
+                $validator->errors()->add('current_password', 'The current password is incorrect.');
+            }
+        });
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class SignUpRequest extends FormRequest
 {
@@ -22,11 +23,23 @@ class SignUpRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->input('id');
+
         return [
             'first_name' => 'required|string|max:20',
             'last_name' => 'required|string|max:20',
-            'email' => 'required|email|unique:users,email',
-            'password' => [
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($id)
+            ],
+            'password' => $id ? [
+                'nullable',
+                Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+            ] :  [
                 'required',
                 Password::min(8)
                     ->mixedCase()

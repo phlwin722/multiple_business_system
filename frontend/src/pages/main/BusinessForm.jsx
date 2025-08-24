@@ -134,7 +134,7 @@ const BusinessForm = () => {
         <div>
           <label
             htmlFor="business_name"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block font-medium text-gray-700 mb-1"
           >
             Business Name
           </label>
@@ -155,7 +155,7 @@ const BusinessForm = () => {
 
         {/* Image Upload (Click on Image) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block font-medium text-gray-700 mb-2">
             Business Image
           </label>
 

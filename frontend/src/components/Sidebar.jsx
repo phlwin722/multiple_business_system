@@ -7,15 +7,17 @@ import axiosClient from "../axiosClient";
 import { useState } from "react";
 import { useStateContext } from "../contexts/ContextProvider";
 import Loading from "./loading";
-import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { IoPeople } from "react-icons/io5";
+import { FaBoxOpen } from "react-icons/fa";
+import { FaPenToSquare } from "react-icons/fa6";
+import { BsGraphUpArrow } from "react-icons/bs";
 
 const Sidebar = ({ isCollapsed, setCollapsed }) => {
   const URL = "auth";
 
   const [loading, setLoading] = useState(null);
 
-  const { user ,setTypePostion, setUser, setToken } = useStateContext();
+  const { user, setTypePostion, setUser, setToken } = useStateContext();
 
   const menuItems = [
     {
@@ -24,29 +26,29 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
       icon: <FaHome size={23} />,
     },
     {
-      name: 'Business', 
-      path: '/business',
-      icon: <MdOutlineBusiness size={23}/>
+      name: "Business",
+      path: "/business",
+      icon: <MdOutlineBusiness size={23} />,
     },
     {
-      name: 'Employee',
-      path: '/employee',
-      icon: <IoPeople side={23}/>
+      name: "Employee",
+      path: "/employee",
+      icon: <IoPeople side={23} />,
     },
     {
-      name: 'Product',
+      name: "Product",
       path: "/product",
-      icon: <MdOutlineProductionQuantityLimits size={23}/>
+      icon: <FaBoxOpen size={23} />,
     },
     {
       name: "Attendance",
-      path: "/settings",
-      icon: <FaCog size={23} />,
+      path: "/attendance",
+      icon: <FaPenToSquare size={23} />,
     },
     {
       name: "Sales",
-      path: "/settings",
-      icon: <FaCog size={23} />,
+      path: "/sale",
+      icon: <BsGraphUpArrow size={23} />,
     },
     {
       name: "Logout",
@@ -60,11 +62,11 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
     try {
       setLoading(true);
       await axiosClient.post(`${URL}/logout`, {
-        id: user.id
+        id: user.id,
       });
       setToken(null);
       setUser(null);
-      setTypePostion(null)
+      setTypePostion(null);
     } catch (error) {
       console.log(error);
     } finally {
@@ -74,11 +76,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
 
   return (
     <div className="p-4">
-      {loading && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-[9999] flex items-center justify-center">
-          <Loading />
-        </div>
-      )}
+      {loading && <Loading />}
       <div className="flex justify-between">
         <h2 className="text-lg font-bold mb-4">Menu</h2>
         <RiArrowRightDoubleLine
