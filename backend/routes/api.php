@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BussinessController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProductController;
@@ -53,4 +54,8 @@ Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeContro
 Route::prefix('sale')->middleware('auth:sanctum')->controller(SaleController::class)->group(function () {
     Route::post('/create', 'insert');
     Route::post('/indexTeller', 'indexTeller');
+});
+
+Route::prefix('attendance')->middleware('auth:sanctum')->controller(AttendanceController::class)->group(function () {
+    Route::post('/index','index');
 });

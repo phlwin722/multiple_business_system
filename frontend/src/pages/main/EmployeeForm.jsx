@@ -30,6 +30,16 @@ const EmployeeForm = () => {
 
   const fileInputRef = useRef(null);
 
+  const handleChangeInput = (ref) => {
+    const input = ref.current;
+    if (input) {
+      const capitalized = input.value.replace(/\b\w/g, (c) => c.toUpperCase());
+      if (input.value != capitalized) {
+        input.value = capitalized;
+      }
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -57,11 +67,11 @@ const EmployeeForm = () => {
       formData.append("business_id", business.current.value);
       formData.append("user_id", user.id);
 
-      if (imageFile) {
+      if (imageFile instanceof File) {
         formData.append("image", imageFile);
       }
 
-      if (position.current.value) {
+      if (password.current.value) {
         formData.append("password", password.current.value);
       }
 
@@ -91,8 +101,13 @@ const EmployeeForm = () => {
         }
       }
     } catch (error) {
-      if (error.response.status === 422) {
+      if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
+      } else if (error.response?.status === 413) {
+        setErrors({ image: ["The image must not be greater than 2Mb."] });
+      } else {
+        console.log(error);
+        toastify("error", "Something went wrong. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -102,7 +117,7 @@ const EmployeeForm = () => {
   const fetchBusinesses = async () => {
     try {
       const response = await axiosClient.post(`/employee/fetchBusinesses`, {
-        user_id: user.id,
+        user_id: user.user_id,
       });
 
       if (response.data.data) {
@@ -152,15 +167,17 @@ const EmployeeForm = () => {
       </h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="font-medium text-gray-800" htmlFor="firtName">
+          <label className="font-medium text-gray-800" htmlFor="firstName">
             First name
           </label>
           <input
             type="text"
-            id="firtName"
+            id="firstName"
             ref={firstName}
-            className={`border border-gray-300 block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.first_name ? "border-red-500" : "border-gray-300"
+            autoComplete="off"
+            onChange={() => handleChangeInput(firstName)}
+            className={`border border-gray-300 rounded-md  block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.first_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.first_name && (
@@ -176,8 +193,10 @@ const EmployeeForm = () => {
             type="text"
             id="lastName"
             ref={lastName}
-            className={`border border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.last_name ? "border-red-500" : "border-gray-300"
+            autoComplete="off"
+            onChange={() => handleChangeInput(lastName)}
+            className={`border border-gray-300 rounded-md  block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
+              errors.last_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.last_name && (
@@ -192,9 +211,10 @@ const EmployeeForm = () => {
           <input
             type="text"
             id="email"
+            autoComplete="off"
             ref={email}
-            className={`border border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.email ? "border-red-500" : "border-gray-300"
+            className={`border border-gray-300 rounded-md  block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
+              errors.email ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.email && (
@@ -215,9 +235,11 @@ const EmployeeForm = () => {
             </span>
             <input
               id="password"
+              autoComplete="new-password" // disables browser autofill & eye
+              inputMode="text" // hint for soft keyboard (mobile)
               ref={password}
-              className={`border border-gray-300 w-full py-2 px-4 mt-1 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors?.password ? "border-red-500" : "border-gray-300"
+              className={`border border-gray-300 rounded-md  w-full py-2 px-4 mt-1 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                errors?.password ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
               }`}
               type={hidden ? "password" : "text"}
             />
@@ -227,7 +249,7 @@ const EmployeeForm = () => {
           )}
         </div>
 
-        <div>
+        <div className={`${user.position === "manager" ? "hidden" : "block"}`}>
           <label htmlFor="position" className="font-medium text-gray-800">
             Choose Position
           </label>
@@ -235,21 +257,21 @@ const EmployeeForm = () => {
             id="position"
             ref={position}
             className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.position ? "border-red-500" : "border-gray-300"
+              errors.position ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           >
             <option value="" hidden>
               -- Select Position --
             </option>
-            <option value="admin">Admin</option>
-            <option value="teller">Teller</option>
+            <option value="Manager">Manager</option>
+            <option value="Teller">Teller</option>
           </select>
           {errors?.position && (
             <p className="text-red-500 text-sm mt-1">{errors.position[0]}</p>
           )}
         </div>
 
-        <div>
+        <div className={`${user.position === "manager" ? "hidden" : "block"}`}>
           <label htmlFor="business_id" className="font-medium text-gray-800">
             Choose business
           </label>
@@ -257,7 +279,7 @@ const EmployeeForm = () => {
             id="business_id"
             ref={business}
             className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.business_id ? "border-red-500" : "border-gray-300"
+              errors.business_id ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           >
             {listBusiness.length > 0 ? (
@@ -286,7 +308,7 @@ const EmployeeForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500" : "border-gray-300"
+              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -329,7 +351,10 @@ const EmployeeForm = () => {
             </button>
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded transition"
+              disabled={loading}
+              className={`text-white px-5 py-2 rounded transition ${
+                loading ? 'bg-blue-400' : 'bg-blue-500 hover:bg-blue-600 '
+              }`}
             >
               Save
             </button>

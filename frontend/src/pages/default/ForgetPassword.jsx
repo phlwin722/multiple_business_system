@@ -2,10 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import axiosClient from "../../axiosClient";
 import { IoClose } from "react-icons/io5";
 import toastify from "../../components/toastify";
-import { FaEye, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FaEye, FaRegEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const ForgetPassword = () => {
   const URL = "/auth";
+  const navigate = useNavigate();
 
   const [validation, setValidation] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -46,7 +49,6 @@ const ForgetPassword = () => {
         toastify("error", "Please provide the correct verification code.");
         return;
       }
-      console.log(serverCode, " ", fullCode);
       setValidation(false);
       setSetupPassword(true);
     }
@@ -62,7 +64,7 @@ const ForgetPassword = () => {
     const fullCode = code.join("");
 
     if (fullCode.length < 6) {
-      toastify("Please enter all 6 degits");
+      toastify("Please enter all 6 digits");
       return;
     }
 
@@ -73,7 +75,6 @@ const ForgetPassword = () => {
 
     setValidation(false);
     setSetupPassword(true);
-    console.log(serverCode, " ", fullCode);
   };
 
   const handleResendCode = async () => {
@@ -83,11 +84,9 @@ const ForgetPassword = () => {
       handleSubmit();
       setCooldown(60);
       setResending(true);
-      setResendingMessasge(null);
       setResendingMessasge("A new Verification code has been sent");
     } catch (error) {
-      console.log(error);
-      setResendingMessasge("Failed to resent code. Please Try again.");
+      setResendingMessasge("Failed to resend code. Please Try again.");
     } finally {
       setResending(false);
     }
@@ -102,7 +101,7 @@ const ForgetPassword = () => {
   }, [cooldown]);
 
   useEffect(() => {
-    document.title = 'Forget Password - Muibu';
+    document.title = "Forget Password - Muibu";
   }, []);
 
   const handleSubmit = async (e) => {
@@ -121,9 +120,9 @@ const ForgetPassword = () => {
         setValidation(true);
       }
     } catch (error) {
-      if (error.response.status === 421) {
+      if (error.response?.status === 421) {
         setErrorMessage(error.response.data.errors);
-      } else if (error.response.status === 422) {
+      } else if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
       }
     } finally {
@@ -145,7 +144,7 @@ const ForgetPassword = () => {
 
       if (response.data.message) {
         setUserID(null);
-        window.location.href = "/signin";
+        navigate("/signin");
       }
     } catch (error) {
       if (error.response?.status === 422) {
@@ -156,16 +155,27 @@ const ForgetPassword = () => {
     }
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-blue-50 to-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-white to-blue-50 flex items-center justify-center px-4">
       {validation ? (
-        <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Enter verification Code
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={cardVariants}
+          transition={{ duration: 0.6 }}
+          className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md"
+        >
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+            Enter Verification Code
           </h2>
 
           {resendingMessage && (
-            <p className="text-sm text-red-500 text-center mb-6">
+            <p className="text-sm text-green-600 text-center mb-6">
               {resendingMessage}
             </p>
           )}
@@ -189,26 +199,26 @@ const ForgetPassword = () => {
                 ref={(el) => (codRefs.current[i] = el)}
                 onChange={(e) => handleChangeCodeInput(e, i)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
-                className="w-12 h-14 text-center text-xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-12 h-14 text-center text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ))}
           </form>
 
           <button
             onClick={handleVerifyCode}
-            className="w-full py-3 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-700 transition duration-200"
+            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
           >
-            Submit code
+            Submit Code
           </button>
 
           <div className="mt-4 text-center">
             <button
               type="button"
               onClick={handleResendCode}
-              className={`text-sm font-medium ${
+              className={`text-sm font-medium transition-colors duration-200 ${
                 cooldown > 0 || resending
                   ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-500 hover:underline"
+                  : "text-blue-600 hover:underline"
               }`}
             >
               {cooldown > 0
@@ -218,51 +228,59 @@ const ForgetPassword = () => {
                 : "Didn't receive the code? Resend"}
             </button>
           </div>
-        </div>
+        </motion.div>
       ) : setupPassword ? (
-        <div className="w-full bg-white max-w-md rounded-xl p-8 shadow-2xl">
-          <h2 className="text-gray-700 font-semibold text-2xl mb-5">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={cardVariants}
+          transition={{ duration: 0.6 }}
+          className="w-full bg-white max-w-md rounded-2xl p-8 shadow-xl"
+        >
+          <h2 className="text-gray-800 font-bold text-2xl mb-5 text-center">
             Reset Your Password
           </h2>
-          <form onSubmit={handleSubmitPassword}>
-            <label
-              htmlFor="new_password"
-              className="text-sm font-medium text-gray-600 mb-1"
-            >
-              New Password
-            </label>
-            <div className="relative">
-              <span
-                onClick={() => setNewPass((prev) => !prev)}
-                className="absolute inset-y-0 right-0 pr-3 top-2 flex items-center"
+          <form onSubmit={handleSubmitPassword} className="space-y-4">
+            <div>
+              <label
+                htmlFor="new_password"
+                className="text-sm font-medium text-gray-600"
               >
-                {newPass ? <FaRegEyeSlash /> : <FaEye />}
-              </span>
-              <input
-                id="new_password"
-                ref={newPassword}
-                type={newPass ? "text" : "password"}
-                placeholder="Enter new password"
-                className={`border border-gray-300 w-full py-2 px-3  rounded-md mt-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-              />
+                New Password
+              </label>
+              <div className="relative mt-2">
+                <span
+                  onClick={() => setNewPass((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 pr-3 top-2 flex items-center cursor-pointer text-gray-500"
+                >
+                  {newPass ? <FaRegEyeSlash /> : <FaEye />}
+                </span>
+                <input
+                  id="new_password"
+                  ref={newPassword}
+                  type={newPass ? "text" : "password"}
+                  placeholder="Enter new password"
+                  className="border border-gray-300 w-full py-3 px-4 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+              {errorPasswordValidation?.new_password && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errorPasswordValidation.new_password[0]}
+                </p>
+              )}
             </div>
-            {errorPasswordValidation?.new_password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errorPasswordValidation.new_password[0]}
-              </p>
-            )}
 
-            <div className="mt-2">
+            <div>
               <label
                 htmlFor="confirm_password"
-                className="text-sm font-medium text-gray-600 mb-1"
+                className="text-sm font-medium text-gray-600"
               >
                 Confirm Password
               </label>
-              <div className="relative">
+              <div className="relative mt-2">
                 <span
                   onClick={() => setConfirmPass((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 pr-3 top-2 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 top-2 flex items-center cursor-pointer text-gray-500"
                 >
                   {confirmPass ? <FaRegEyeSlash /> : <FaEye />}
                 </span>
@@ -271,7 +289,7 @@ const ForgetPassword = () => {
                   type={confirmPass ? "text" : "password"}
                   id="confirm_password"
                   placeholder="Confirm new password"
-                  className={`focus:ring-2 focus:ring-blue-500 focus:outline-none border border-gray-300 w-full py-2 px-3 rounded-md mt-2`}
+                  className="border border-gray-300 w-full py-3 px-4 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
               {errorPasswordValidation?.confirm_password && (
@@ -284,32 +302,38 @@ const ForgetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full text-white py-2 rounded-md mt-7 transition duration-200 ${
+              className={`w-full text-white py-3 rounded-lg font-semibold transition duration-200 ${
                 loading
-                  ? "cursor-not-allowed bg-blue-400 text-gray-400"
-                  : "bg-blue-500  hover:bg-blue-700 "
+                  ? "cursor-not-allowed bg-blue-400"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               Set New Password
             </button>
           </form>
-        </div>
+        </motion.div>
       ) : (
-        <div className="w-full max-w-md bg-white shadow-2xl rounded-xl p-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={cardVariants}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8"
+        >
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
             Forgot Password
           </h2>
 
           {errorMessage && (
-            <div className="flex mb-5 w-full justify-between gap-2 bg-red-500 text-white p-2 py-3 rounded-md">
-              <div>
-                <p className=" text-sm">{errorMessage}</p>
-              </div>
-              <div>
-                <IoClose onClick={() => setErrorMessage(null)} />
-              </div>
+            <div className="flex mb-5 w-full justify-between gap-2 bg-red-100 text-red-700 p-3 rounded-lg">
+              <p className="text-sm">{errorMessage}</p>
+              <IoClose
+                onClick={() => setErrorMessage(null)}
+                className="cursor-pointer"
+              />
             </div>
           )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
@@ -321,29 +345,26 @@ const ForgetPassword = () => {
               <input
                 id="email"
                 name="email"
+                autoComplete="off"
                 ref={email}
                 type="text"
                 placeholder="you@example.com"
-                className={`mt-2 w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700 ${
+                className={`mt-2 w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700 ${
                   errors.email ? "border-red-500" : "border-gray-300"
                 }`}
               />
               {errors?.email && (
-                <div>
-                  <p className="mt-2 text-sm text-red-500">{errors.email[0]}</p>
-                </div>
+                <p className="mt-2 text-sm text-red-500">{errors.email[0]}</p>
               )}
             </div>
-
-            {/* You can optionally add a newPassword field after email is verified */}
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 text-white font-medium rounded-md transition duration-200 ${
+              className={`w-full py-3 text-white font-semibold rounded-lg transition duration-200 ${
                 loading
-                  ? "cursor-not-allowed bg-blue-400 text-gray-400"
-                  : "bg-blue-600  hover:bg-blue-700 "
+                  ? "cursor-not-allowed bg-blue-400"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
               Verify Email
@@ -351,11 +372,14 @@ const ForgetPassword = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/signin" className="text-sm text-blue-500 hover:underline">
+            <button
+              onClick={() => navigate("/signin")}
+              className="text-sm cursor-pointer text-blue-600 hover:underline"
+            >
               Back to login
-            </a>
+            </button>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

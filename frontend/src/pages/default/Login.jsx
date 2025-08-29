@@ -10,7 +10,6 @@ const Login = () => {
   const URL = "auth";
   const navigate = useNavigate();
   const { setUser, setToken, setTypePostion } = useStateContext();
-
   const [hidden, setHidden] = useState(true);
   const [errors, setErrors] = useState([]);
   const [validation, setValidation] = useState(null);
@@ -32,22 +31,23 @@ const Login = () => {
       };
 
       const response = await axiosClient.post(`${URL}/signin`, payLoad);
-
       if (response.data.user) {
         setUser(response.data.user);
         setToken(response.data.token);
         setTypePostion(response.data.user.position);
-        if (response.data.user.position === "admin") {
+
+        const position = response.data.user.position.toLowerCase();
+        if (position === "admin" || position === "manager") {
           navigate("/dashboard");
         } else {
           navigate("/teller");
         }
       }
     } catch (error) {
-      if (error.response.status === 422) {
+      if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
       } else {
-        setValidation(error.response.data.errors);
+        setValidation(error.response?.data?.errors || "Something went wrong");
       }
     } finally {
       setLoading(false);
@@ -55,26 +55,26 @@ const Login = () => {
   };
 
   useEffect(() => {
-    document.title = 'Sign in - Muibu';
+    document.title = "Sign in - Muibu";
   }, []);
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-10">
       {loading && <Loading />}
 
-      <div className="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
-        <h2 className="text-3xl font-semibold text-center text-gray-800">
-          Sign in
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl transform transition duration-500 hover:scale-[1.02] animate-fade-in-up">
+        <h2 className="text-3xl font-bold text-center text-gray-800 tracking-tight">
+          Welcome Back
         </h2>
-        <p className="text-sm text-center text-gray-500 mt-1 mb-6">
-          Access your account
+        <p className="text-sm text-center text-gray-500 mt-2 mb-6">
+          Sign in to continue managing your business with <span className="text-blue-600 font-semibold">Muibu</span>
         </p>
-        {/* Global error */}
 
+        {/* Global error */}
         {validation && (
-          <div className="mb-3 bg-red-500 text-white p-2 rounded-lg mt-4 relative">
+          <div className="mb-4 bg-red-500 text-white p-3 rounded-lg relative animate-shake">
             <span
-              onClick={() => setValidation(!validation)}
+              onClick={() => setValidation(null)}
               className="cursor-pointer absolute inset-y-0 right-0 flex items-center p-3"
             >
               <IoClose />
@@ -82,8 +82,9 @@ const Login = () => {
             <p className="text-sm pr-6">{validation}</p>
           </div>
         )}
-        <form action="" onSubmit={handleSubmit}>
-          {/* email failed */}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
           <div>
             <label htmlFor="email" className="block font-medium text-gray-700">
               Email
@@ -92,8 +93,9 @@ const Login = () => {
               type="text"
               id="email"
               ref={email}
-              className={`border border-gray-300 mt-2 w-full px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors.email ? "border-red-500" : "border-gray-300"
+              autoComplete="off"
+              className={`mt-2 w-full px-4 py-2 rounded-lg border shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200 ${
+                errors.email ? "border-red-500  focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
               }`}
             />
             {errors?.email && (
@@ -101,24 +103,23 @@ const Login = () => {
             )}
           </div>
 
-          {/* Password field */}
-          <div className="mt-4">
-            <label
-              htmlFor="password"
-              className="block font-medium text-gray-700"
-            >
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block font-medium text-gray-700">
               Password
             </label>
-            <div className="relative">
+            <div className="relative mt-2">
               <input
                 type={hidden ? "password" : "text"}
                 ref={password}
-                className={`border border-gray-300 w-full py-2 px-4 mt-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none , ${
-                  errors.password ? "border-red-500" : "border-gray-300"
+                autoComplete="new-password"
+                inputMode="text"
+                className={`w-full px-4 py-2 rounded-lg border shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200 ${
+                  errors.password ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
                 }`}
               />
               <span
-                className="absolute inset-y-0 right-0 top-1 pr-3 flex items-center text-gray-600 cursor-pointer"
+                className="absolute inset-y-0 right-0 top-0 pr-3 flex items-center text-gray-500 cursor-pointer hover:text-gray-700"
                 onClick={() => setHidden((prev) => !prev)}
               >
                 {hidden ? <FaRegEye /> : <FaRegEyeSlash />}
@@ -127,23 +128,35 @@ const Login = () => {
             {errors?.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
+          </div>
 
-            <div className="mt-3 text-end">
-              <p onClick={() => navigate('/forgetpassword')} className="text-blue-500 hover:underline cursor-pointer text-sm">Forget Password?</p>
-            </div>
-            {/* Sign up link */}
-            <div className="text-sm text-gray-600 text-center mt-3">
-              Don't have and account?
-              <span
-                onClick={() => navigate("/signup")}
-                className="text-blue-600 hover:underline cursor-pointer ml-1"
-              >
-                Sign up
-              </span>
-            </div>
-            <button className="w-full py-3 bg-blue-600 mt-4 text-white font-medium rounded-md hover:bg-blue-700 transition duration-300">
-              Sign in
-            </button>
+          {/* Forget password */}
+          <div className="text-right">
+            <p
+              onClick={() => navigate("/forgetpassword")}
+              className="text-blue-500 hover:underline cursor-pointer text-sm"
+            >
+              Forgot Password?
+            </p>
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition duration-300 shadow-md"
+          >
+            Sign in
+          </button>
+
+          {/* Sign up link */}
+          <div className="text-sm text-gray-600 text-center mt-4">
+            Don't have an account?
+            <span
+              onClick={() => navigate("/signup")}
+              className="text-blue-600 hover:underline cursor-pointer ml-1 font-medium"
+            >
+              Sign up
+            </span>
           </div>
         </form>
       </div>

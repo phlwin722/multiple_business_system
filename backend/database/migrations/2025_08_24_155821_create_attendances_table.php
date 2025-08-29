@@ -15,15 +15,22 @@ return new class extends Migration
             $table->id();
             $table->string('time_in')->nullable();
             $table->string("time_out")->nullable();
-            $table->foreignId('user_id')
+            $table->foreignId('id_user_create')
+                ->nullable()
                 ->constrained('users', 'id')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users', 'id')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreignId('business_id')
+                ->nullable()
+                ->constrained('businesses', 'id')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->timestamps();
-
-            // ✅ Add indexes for better query performance
-            $table->index(['user_id', 'time_out']);           // Helps with whereNull + user_id
-            $table->index(['user_id', 'time_out', 'time_in']); // Helps with orderBy + filters
         });
     }
 

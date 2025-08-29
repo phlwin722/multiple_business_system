@@ -13,10 +13,15 @@ class EmployeeController extends Controller
     {
         try {
 
-            $query = User::where('user_id', $request->user_id);
+            $query = User::where('user_id', $request->user_id)
+                        ->where('position', '!=' , 'admin');
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);
+            }
+
+            if ($request->has('position') && $request->business_id > 0) {
+                $query->where('position', $request->position);
             }
 
             if ($request->full_name != null) {

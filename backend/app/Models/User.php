@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Business;
+use App\Models\Attendance;
 
 class User extends Authenticatable
 {
@@ -59,5 +60,11 @@ class User extends Authenticatable
     public function business()
     {
         return $this->belongsTo(Business::class, 'business_id');
+    }
+
+    // Attendances created by this user
+    public function createdAttendances()
+    {
+        return $this->hasMany(Attendance::class, 'id_user_create');
     }
 }

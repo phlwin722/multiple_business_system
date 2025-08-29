@@ -4,7 +4,7 @@ import { RiArrowRightDoubleLine } from "react-icons/ri";
 import { MdOutlineBusiness } from "react-icons/md";
 import { MdLogout } from "react-icons/md";
 import axiosClient from "../axiosClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useStateContext } from "../contexts/ContextProvider";
 import Loading from "./loading";
 import { IoPeople } from "react-icons/io5";
@@ -19,44 +19,84 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
 
   const { user, setTypePostion, setUser, setToken } = useStateContext();
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      path: "/dashboard",
-      icon: <FaHome size={23} />,
-    },
-    {
-      name: "Business",
-      path: "/business",
-      icon: <MdOutlineBusiness size={23} />,
-    },
-    {
-      name: "Employee",
-      path: "/employee",
-      icon: <IoPeople side={23} />,
-    },
-    {
-      name: "Product",
-      path: "/product",
-      icon: <FaBoxOpen size={23} />,
-    },
-    {
-      name: "Attendance",
-      path: "/attendance",
-      icon: <FaPenToSquare size={23} />,
-    },
-    {
-      name: "Sales",
-      path: "/sale",
-      icon: <BsGraphUpArrow size={23} />,
-    },
-    {
-      name: "Logout",
-      path: "/signin",
-      icon: <MdLogout size={23} />,
-      action: "true",
-    },
-  ];
+  const [menuItems, setMenuItems] = useState([]);
+
+  const validating = () => {
+    if (user.position === "admin") {
+      setMenuItems([
+        {
+          name: "Dashboard",
+          path: "/dashboard",
+          icon: <FaHome size={23} />,
+        },
+        {
+          name: "Business",
+          path: "/business",
+          icon: <MdOutlineBusiness size={23} />,
+        },
+        {
+          name: "Employee",
+          path: "/employee",
+          icon: <IoPeople side={23} />,
+        },
+        {
+          name: "Product",
+          path: "/product",
+          icon: <FaBoxOpen size={23} />,
+        },
+        {
+          name: "Attendance",
+          path: "/attendance",
+          icon: <FaPenToSquare size={23} />,
+        },
+        {
+          name: "Sales",
+          path: "/sale",
+          icon: <BsGraphUpArrow size={23} />,
+        },
+        {
+          name: "Logout",
+          path: "/signin",
+          icon: <MdLogout size={23} />,
+          action: "true",
+        },
+      ]);
+    } else {
+      setMenuItems([
+        {
+          name: "Dashboard",
+          path: "/dashboard",
+          icon: <FaHome size={23} />,
+        },
+        {
+          name: "Employee",
+          path: "/employee",
+          icon: <IoPeople side={23} />,
+        },
+        {
+          name: "Product",
+          path: "/product",
+          icon: <FaBoxOpen size={23} />,
+        },
+        {
+          name: "Attendance",
+          path: "/attendance",
+          icon: <FaPenToSquare size={23} />,
+        },
+        {
+          name: "Sales",
+          path: "/sale",
+          icon: <BsGraphUpArrow size={23} />,
+        },
+        {
+          name: "Logout",
+          path: "/signin",
+          icon: <MdLogout size={23} />,
+          action: "true",
+        },
+      ]);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -73,6 +113,10 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    validating();
+  }, []);
 
   return (
     <div className="p-4">

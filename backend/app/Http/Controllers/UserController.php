@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
 
+use function Pest\Laravel\options;
+
 class UserController extends Controller
 {
     public function register(SignUpRequest $signupRequest)
@@ -20,6 +22,8 @@ class UserController extends Controller
         try {
             $data = $signupRequest->validated();
             $user = User::create($data);
+
+            User::findOrFail($user->id)->update(['user_id' => $user->id]);
 
             if ($user) {
                 return response()->json([
@@ -53,10 +57,14 @@ class UserController extends Controller
                 'updated_at' => now(),
             ]);
 
-            Attendance::create([
-                'user_id' => $user->id,
-                'time_in' => now()
-            ]);
+            if ($user->position != 'admin') {
+                Attendance::create([
+                    'user_id' => $user->user_id,
+                    'id_user_create' => $user->id,
+                    'business_id' => $user->business_id,
+                    'time_in' => now()
+                ]);
+            }
 
             return response()->json([
                 'user' => [
@@ -64,11 +72,13 @@ class UserController extends Controller
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'business_id' => $user->business_id,
+                    'user_id' => $user->user_id,
                     'image' => $user->image ? asset($user->image) : null,
+                    'business_image' => optional($user->business)->image ? asset($user->business->image) : null,
                     'position' => $user->position,
                     'email' => $user->email,
                     'business_id' => $user->business_id,
-                    'business_name' => $user->business->business_name ?? null,
+                    'business_name' => optional($user->business)->business_name,
                 ],
                 'token' => $token,
             ]);
@@ -92,12 +102,12 @@ class UserController extends Controller
 
             $user->currentAccessToken()->delete();
 
-            $latest = Attendance::where('user_id', $request->id)
-                ->whereNull('time_out')
-                ->orderByDesc('time_in')
-                ->first();
+            if ($user->position != 'admin') {
+                $latest = Attendance::where('id_user_create', $request->id)
+                    ->whereNull('time_out')
+                    ->orderByDesc('time_in')
+                    ->first();
 
-            if ($latest) {
                 $latest->update([
                     'time_out' => now()
                 ]);

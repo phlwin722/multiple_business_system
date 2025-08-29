@@ -49,7 +49,7 @@ class SaleController extends Controller
 
     public function indexTeller (Request $request) {
         try {   
-            $user = Sale::where('user_id',$request->user_id)
+            $user = Sale::where('business_id',$request->business_id)
                 ->whereDate('created_at', Carbon::now()->toDateString())
                 ->orderBy('created_at', 'desc')
                 ->get()

@@ -50,11 +50,15 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
 
   const handleAddForm = async () => {
     if (type) {
-      if (listBusiness.length == 0) {
-        if (url === "/employee") {
-          toastify("error", "Please create business to proceed add employee");
-        } else if (url === "/product") {
-          toastify("error", "Please create business to proceed add product");
+      if (user.position != "manager") {
+        if (listBusiness.length == 0) {
+          if (url === "/employee") {
+            toastify("error", "Please create business to proceed add employee");
+          } else if (url === "/product") {
+            toastify("error", "Please create business to proceed add product");
+          }
+        } else {
+          navigate(`${url}/form`);
         }
       } else {
         navigate(`${url}/form`);
@@ -66,9 +70,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      if (type) {
-        fetchData(selectedBusinessId, searchValue);
-      }
+      fetchData(selectedBusinessId, searchValue);
     }, 500); // delay in ms
 
     return () => clearTimeout(delayDebounce); // cleanup
@@ -78,12 +80,14 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     const fetchBusinesses = async () => {
       try {
         if (type) {
-          const response = await axiosClient.post(`${url}/fetchBusinesses`, {
-            user_id: user.id,
-          });
+          if (user.position != "manager") {
+            const response = await axiosClient.post(`${url}/fetchBusinesses`, {
+              user_id: user.id,
+            });
 
-          if (response.data.data) {
-            setListBusiness(response.data.data);
+            if (response.data.data) {
+              setListBusiness(response.data.data);
+            }
           }
         }
       } catch (error) {
@@ -99,17 +103,16 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
       <Modal
         isOpen={isModalOpen}
         title="Delete Confirmation"
-        backgroundBtn= "bg-red-500 hover:bg-red-600"
+        backgroundBtn="bg-red-500 hover:bg-red-600"
         messageBtn="Delete"
         message="Are you sure you want to delete this item? This action cannot be undone."
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleDelete}
       />
 
-      <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex flex-col md:flex-row md:justify-between gap-4 md:items-center">
-        {type && (
-          <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4">
-            {/* Select */}
+      <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex flex-col sm:flex-row sm:justify-between gap-4 sm:items-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4">
+          {type && user.position != "manager" && (
             <div className="relative w-full sm:w-52">
               <select
                 id="business"
@@ -134,28 +137,27 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                 Select Business
               </label>
             </div>
-
-            {/* Search */}
-            <div className="relative w-full sm:w-64">
-              <input
-                type="search"
-                id="search"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder=""
-              />
-              <label
-                htmlFor="search"
-                className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
-                  searchValue ? "text-xs top-[4px] text-blue-600" : ""
-                }`}
-              >
-                Search
-              </label>
-            </div>
+          )}
+          <div className="relative w-full sm:w-64">
+            <input
+              type="search"
+              id="search"
+              autoComplete="off"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder=""
+            />
+            <label
+              htmlFor="search"
+              className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+                searchValue ? "text-xs top-[4px] text-blue-600" : ""
+              }`}
+            >
+              Search
+            </label>
           </div>
-        )}
+        </div>
 
         {/* Add Button */}
         <div className="w-full sm:w-auto">
@@ -229,7 +231,9 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                           />
                         ) : col.key === "quantity" ? (
                           row[col.key] === 0 ? (
-                            <p className="text-red-500 font-semibold">Out of stock</p>
+                            <p className="text-red-500 font-semibold">
+                              Out of stock
+                            </p>
                           ) : (
                             row[col.key]
                           )

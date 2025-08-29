@@ -14,7 +14,7 @@ class ProductController extends Controller
     {
         try {
             // Initialize query builder
-            $query = Product::query();
+            $query = Product::where('user_id', $request->user_id);
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);

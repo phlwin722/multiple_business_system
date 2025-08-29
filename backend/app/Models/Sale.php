@@ -11,6 +11,7 @@ class Sale extends Model
         'order_quantity',
         'price',
         'product_id',
+        'payment_mode',
         'business_id',
         'user_id'
     ];
