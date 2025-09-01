@@ -5,35 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\SetupPasswordRequest;
 use Illuminate\Http\Request;
-use App\Http\Requests\SignupRequest;
+use App\Http\Requests\SignUpRequest;
 use App\Http\Requests\SignInRequest;
 use App\Models\User;
 use App\Mail\ForgetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
-
-use function Pest\Laravel\options;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    public function register(SignUpRequest $signupRequest)
+public function register(SignUpRequest $signUpRequest)
     {
         try {
-            $data = $signupRequest->validated();
+
+            $data = $signUpRequest->validated();
+            $data['password'] = bcrypt($data['password']);
             $user = User::create($data);
 
-            User::findOrFail($user->id)->update(['user_id' => $user->id]);
+            $user->update(['user_id' => $user->id]);
 
-            if ($user) {
-                return response()->json([
-                    'message' => 'Registered successfully'
-                ]);
-            }
-        } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'message' => 'Registered successfully'
+            ], 201);
+        } catch (\Exception $e) { 
+            return response()->json([
+                'error' => 'Something went wrong. Please try again later.'
+            ], 500);
         }
     }
 
@@ -136,10 +136,8 @@ class UserController extends Controller
                 ], 421);
             }
 
-            // generated 6 degit code
             $generatedCode = (string) rand(100000, 900000);
 
-            // Build the email data
             $mailData = [
                 'fullname' => $user->first_name . " " . $user->last_name,
                 'email' => $user->email,
@@ -167,7 +165,6 @@ class UserController extends Controller
             $data = $request->validated();
             $userID = $request->id ? $request->id : $request->user_id;
 
-            // Use the authenticated user instead of trusting user input
             $user = User::findOrFail($userID);
 
             $user->password = bcrypt($data['new_password']);
@@ -184,11 +181,11 @@ class UserController extends Controller
     }
 
 
-    public function UserUpdate(SignUpRequest $signupRequest)
+    public function UserUpdate(SignUpRequest $signupRequest, $id)
     {
         try {
             $data = $signupRequest->validated();
-            $user = User::findOrFail($signupRequest->id);
+            $user = User::findOrFail($id);
             $user->update([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],

@@ -9,9 +9,8 @@ const AttendanceList = () => {
   const [listBusiness, setListBusiness] = useState([]);
   const [listAttendance, setListAttendance] = useState([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState("");
-  const [selectCalendar, setSelectCalendar] = useState("week");
+  const [selectCalendar, setSelectCalendar] = useState("weekly");
 
-  // new states for custom range
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -42,7 +41,6 @@ const AttendanceList = () => {
         payload.business_id = selectedBusinessId;
       }
 
-      // if user selects "custom" range
       if (selectCalendar === "custom") {
         payload.start_date = startDate;
         payload.end_date = endDate;

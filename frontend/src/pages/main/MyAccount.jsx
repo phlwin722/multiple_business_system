@@ -72,7 +72,6 @@ const MyAccount = () => {
       setIsModalOpen(false);
       setLoading(true);
       const form = new FormData();
-      form.append("id", formData.id);
       form.append("first_name", formData.first_name);
       form.append("last_name", formData.last_name);
       form.append("email", formData.email);
@@ -81,7 +80,7 @@ const MyAccount = () => {
         form.append("image", imageFile);
       }
 
-      await axiosClient.post(`${URL}/user-update`, form, {
+      await axiosClient.post(`${URL}/user-update/${formData.id}`, form, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

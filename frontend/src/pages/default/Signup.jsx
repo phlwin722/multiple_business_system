@@ -5,6 +5,7 @@ import Loading from "../../components/loading";
 import toastify from "../../components/toastify";
 import { ToastContainer } from "react-toastify";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import TermsAgreementModal from "../../components/TermsAgreementModal";
 
 const Signup = () => {
   const URL = "auth";
@@ -19,6 +20,7 @@ const Signup = () => {
   const [errors, setErrors] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hidden, setHidden] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,9 +72,11 @@ const Signup = () => {
     <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4 py-10">
       <ToastContainer />
 
+      <TermsAgreementModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+
       {loading && <Loading />}
 
-      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl transform transition duration-500 hover:scale-[1.02] animate-fade-in-up"> 
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl transform transition duration-500 hover:scale-[1.02] animate-fade-in-up">
         <h2 className="text-3xl font-semibold text-center text-gray-800">
           Sign Up
         </h2>
@@ -96,7 +100,9 @@ const Signup = () => {
               ref={firstName}
               autoComplete="off"
               className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors?.first_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                errors?.first_name
+                  ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                  : "border-gray-300"
               }`}
             />
             {errors?.first_name && (
@@ -119,7 +125,9 @@ const Signup = () => {
               autoComplete="off"
               ref={lastName}
               className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors?.last_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                errors?.last_name
+                  ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                  : "border-gray-300"
               }`}
             />
             {errors?.last_name && (
@@ -141,7 +149,9 @@ const Signup = () => {
               autoComplete="off"
               ref={email}
               className={`mt-2 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors?.email ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                errors?.email
+                  ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                  : "border-gray-300"
               }`}
             />
             {errors?.email && (
@@ -165,7 +175,9 @@ const Signup = () => {
                 type={hidden ? "password" : "text"}
                 ref={password}
                 className={`w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors?.password ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                  errors?.password
+                    ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                    : "border-gray-300"
                 }`}
               />
               <span
@@ -184,21 +196,27 @@ const Signup = () => {
           <div className="flex items-center">
             <input
               id="terms"
-              value={termsAgreement}
-              onChange={() => setTermsAgreement((prev) => !prev)}
               type="checkbox"
+              checked={termsAgreement} // Use checked to reflect state
+              onChange={() => setTermsAgreement((prev) => !prev)}
               className="h-4 w-4 text-blue-600 border-gray-300 rounded"
             />
-            <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+            <label htmlFor="terms" className="ml-2 mr-1 text-sm text-gray-600">
               I agree to the{" "}
-              <span className="text-blue-600 hover:underline cursor-pointer">
-                Terms & Conditions
-              </span>
             </label>
+
+            <span
+              onClick={() => setIsOpen(true)}
+              className="text-blue-600 hover:underline cursor-pointer"
+            >
+                Terms & Agreement
+            </span>
           </div>
           {errors?.terms_agreement && (
-              <p className="text-red-500 text-xs mt-1">{errors.terms_agreement[0]}</p>
-            )}
+            <p className="text-red-500 text-xs -mt-3">
+              {errors.terms_agreement[0]}
+            </p>
+          )}
 
           {/* Link to Sign In */}
           <div className="text-sm text-gray-600 text-center">
