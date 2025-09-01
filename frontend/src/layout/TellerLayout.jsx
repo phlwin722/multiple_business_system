@@ -18,7 +18,7 @@ const TellerLayout = () => {
   }
 
   // Redirect based on typePosition (Admin user should be redirected to /dashboard)
-  if (typePosition === "admin") {
+  if (typePosition === "admin" || typePosition === 'manager') {
     return <Navigate to="/dashboard" />;
   }
 

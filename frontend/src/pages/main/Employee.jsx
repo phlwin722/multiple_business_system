@@ -30,7 +30,7 @@ const Employee = () => {
     {
       name: "Status",
       key: "status",
-    }
+    },
   ];
 
   const fetchData = async (business_id = null, search = null) => {
@@ -43,10 +43,19 @@ const Employee = () => {
           full_name: search,
         });
       } else {
-        response = await axiosClient.post("/employee/index", {
-          user_id: user.id,
-          full_name: search,
-        });
+        if (user.position === "manager") {
+          response = await axiosClient.post("/employee/index", {
+            user_id: user.user_id,
+            full_name: search,
+            business_id: user.business_id,
+            position: "teller",
+          });
+        } else {
+          response = await axiosClient.post("/employee/index", {
+            user_id: user.user_id,
+            full_name: search,
+          });
+        }
       }
 
       if (response.data.message) {
@@ -54,12 +63,13 @@ const Employee = () => {
       }
     } catch (error) {
       console.log(error);
+      toastify("error", "Something went wrong. Please try again.");
     }
   };
 
   useEffect(() => {
     fetchData();
-    document.title = "Employee - Muibu"
+    document.title = "Employee - Muibu";
   }, []);
 
   return (

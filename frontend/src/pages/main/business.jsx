@@ -21,10 +21,11 @@ const Business = () => {
     },
   ];
 
-  const fetchData = async () => {
+  const fetchData = async (business_id = null, search = null) => {
     try {
       const response = await axiosClient.post("/business/index", {
-        user_id: user.id,
+        user_id: user.user_id,
+        search: search,
       });
 
       if (response.data.message) {
@@ -32,15 +33,17 @@ const Business = () => {
       }
     } catch (error) {
       console.log(error);
+      toastify("error", "Something went wrong. Please try again.");
     }
   };
+
   useEffect(() => {
     fetchData();
-    document.title = 'Business - Muibu'
+    document.title = "Business - Muibu";
   }, []);
 
   useEffect(() => {
-    if (location.state?.toast) { 
+    if (location.state?.toast) {
       window.history.replaceState({}, document.title); // avoids duplicate toast on refresh
     }
   }, [location.state]);

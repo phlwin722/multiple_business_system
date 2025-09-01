@@ -26,6 +26,16 @@ const ProductForm = () => {
 
   const fileInputRef = useRef(null);
 
+  const handleChangeInput = (ref) => {
+    const input = ref.current;
+    if (input) {
+      const capitalized = input.value.replace(/\b\w/g, (c) => c.toUpperCase());
+      if (input.value != capitalized) {
+        input.value = capitalized;
+      }
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -56,10 +66,11 @@ const ProductForm = () => {
         quantity.current.value ? parseInt(quantity.current.value) : ""
       );
       formData.append("business_id", business.current.value);
-      formData.append("user_id", user.id);
+      formData.append("user_id", user.user_id);
 
-      if (imageFile) {
+      if (imageFile instanceof File) {
         formData.append("image", imageFile);
+        // Do NOT append `image` if the user hasn't selected a new file.
       }
 
       if (id) {
@@ -88,8 +99,13 @@ const ProductForm = () => {
         }
       }
     } catch (error) {
-      if (error.response.status === 422) {
+      if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
+      } else if (error.response?.status === 413) {
+        setErrors({ image: ["The image must not be greater than 2Mb."] });
+      } else {
+        toastify("error", "Something went wrong. Please try again.");
+        console.log(error);
       }
     } finally {
       setLoading(false);
@@ -99,7 +115,7 @@ const ProductForm = () => {
   const fetchBusinesses = async () => {
     try {
       const response = await axiosClient.post(`/product/fetchBusinesses`, {
-        user_id: user.id,
+        user_id: user.user_id,
       });
 
       if (response.data.data) {
@@ -107,6 +123,7 @@ const ProductForm = () => {
       }
     } catch (error) {
       console.log(error);
+      toastify("error", "Something went wrong. Please try again.");
     }
   };
 
@@ -135,6 +152,10 @@ const ProductForm = () => {
       fetchData();
     }
     fetchBusinesses();
+
+    if (user.position === "manager") {
+      business.current.value = user.business_id;
+    }
     document.title = "Product Form - Muibu";
   }, []);
 
@@ -154,8 +175,9 @@ const ProductForm = () => {
             type="text"
             id="product_name"
             ref={product_name}
-            className={`border border-gray-300 block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.product_name ? "border-red-500" : "border-gray-300"
+            onChange={() => handleChangeInput(product_name)}
+            className={`border border-gray-300 rounded-md  block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.product_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.product_name && (
@@ -173,8 +195,8 @@ const ProductForm = () => {
             type="number"
             id="price"
             ref={price}
-            className={`border border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.price ? "border-red-500" : "border-gray-300"
+            className={`border rounded-md border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
+              errors.price ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.price && (
@@ -183,7 +205,7 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label htmlFor="quantity" className="font-medium text-gray-800">
+          <label htmlFor="quantity" className="rounded-md font-medium text-gray-800">
             Quantity
           </label>
           <input
@@ -191,7 +213,7 @@ const ProductForm = () => {
             id="quantity"
             ref={quantity}
             className={`border border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.quantity ? "border-red-500" : "border-gray-300"
+              errors.quantity ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors?.quantity && (
@@ -199,14 +221,16 @@ const ProductForm = () => {
           )}
         </div>
 
-        <div>
+        <div
+          className={`${user.position === "manager" ? "hidden" : "block"}   `}
+        >
           <label htmlFor="quantity" className="font-medium text-gray-800">
             Choose business
           </label>
           <select
             ref={business}
-            className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.business_id ? "border-red-500" : "border-gray-300"
+            className={`block border mt-1 border-gray-300 rounded-md  focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
+              errors.business_id ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           >
             {listBusiness.length > 0 ? (
@@ -235,7 +259,7 @@ const ProductForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500" : "border-gray-300"
+              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -261,7 +285,7 @@ const ProductForm = () => {
 
         <div className="bg-red-500 py-2 px-4 rounded-lg text-white">
           <p className="text-sm">
-            Note that the maximum allowed file size for uploads is 10 megabytes
+            Note that the maximum allowed file size for uploads is 2 megabytes
             (MB).
           </p>
         </div>
@@ -278,7 +302,10 @@ const ProductForm = () => {
             </button>
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded transition"
+              disabled={loading}
+              className={`text-white px-5 py-2 rounded transition ${
+                loading ? 'bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
             >
               Save
             </button>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('order_quantity');
             $table->decimal('price', 10, 2);
+            $table->string('payment_mode');
             $table->foreignId('product_id')
                 ->nullable()
                 ->constrained('products', 'id')

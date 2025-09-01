@@ -32,9 +32,10 @@ const MyAccount = () => {
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
+    const capitalized = value.replace(/\b\w/g, (c) => c.toUpperCase());
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: capitalized,
     }));
   };
 
@@ -71,16 +72,15 @@ const MyAccount = () => {
       setIsModalOpen(false);
       setLoading(true);
       const form = new FormData();
-      form.append("id", formData.id);
       form.append("first_name", formData.first_name);
       form.append("last_name", formData.last_name);
       form.append("email", formData.email);
 
-      if (imageFile) {
+      if (imageFile instanceof File) {
         form.append("image", imageFile);
       }
 
-      await axiosClient.post(`${URL}/user-update`, form, {
+      await axiosClient.post(`${URL}/user-update/${formData.id}`, form, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -98,6 +98,11 @@ const MyAccount = () => {
     } catch (error) {
       if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
+      } else if (error.response?.status === 413) {
+        setErrors({ image: ["The image must not be greater than 2Mb"] });
+      } else {
+        toastify("error", "Something went wrong. Please try again.");
+        console.log(error);
       }
     } finally {
       setLoading(false);
@@ -106,14 +111,16 @@ const MyAccount = () => {
   const handleUpdatePassword = async () => {
     try {
       setLoading(true);
-      setErrors([])
+      setErrors([]);
       await axiosClient.post(`${URL}/change-password`, formDataPass);
-      toastify('success', "Password updated successfully.")
+      toastify("success", "Password updated successfully.");
     } catch (error) {
       if (error.response.status === 422) {
         setErrors(error.response.data.errors);
+      } else {
+        console.log(error);
+        toastify("error", "Something went wrong. Please try again.");
       }
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -198,6 +205,7 @@ const MyAccount = () => {
                   <input
                     value={formData.first_name}
                     name="first_name"
+                    autoComplete="off"
                     onChange={handleChangeInput}
                     type="text"
                     id="first_name"
@@ -222,6 +230,7 @@ const MyAccount = () => {
                     value={formData.last_name}
                     type="text"
                     onChange={handleChangeInput}
+                    autoComplete="off"
                     name="last_name"
                     id="last_name"
                     className={`py-2 px-4 w-full rounded-md mt-2 focus:ring-2 focus:ring-blue-500 focus:outline-none border ${
@@ -243,8 +252,9 @@ const MyAccount = () => {
                     type="text"
                     disabled
                     name="email"
+                    autoComplete="off"
                     id="email"
-                    className={`py-2 px-4 w-full rounded-md mt-2 focus:ring-2 focus:ring-blue-500 focus:outline-none border ${
+                    className={`py-2 px-4 w-full bg-gray-100 rounded-md mt-2 focus:ring-2 focus:ring-blue-500 focus:outline-none border ${
                       errors.email ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -283,7 +293,7 @@ const MyAccount = () => {
               </div>
               <div className="mt-3 w-full bg-red-500 py-2 px-4 rounded-lg text-white">
                 <p className="text-sm">
-                  Note that the maximum allowed file size for uploads is 10
+                  Note that the maximum allowed file size for uploads is 2
                   megabytes (MB).
                 </p>
               </div>
@@ -319,6 +329,8 @@ const MyAccount = () => {
                     <input
                       id="current_password"
                       onChange={handleChangePassword}
+                      autoComplete="new-password"
+                      inputMode="text"
                       value={formDataPass.current_password}
                       name="current_password"
                       type={current_password ? "password" : "text"}
@@ -351,6 +363,8 @@ const MyAccount = () => {
                     </span>
                     <input
                       id="new_password"
+                      autoComplete="new-password"
+                      inputMode="text"
                       type={new_password ? "password" : "text"}
                       value={formDataPass.new_password}
                       onChange={handleChangePassword}
@@ -384,6 +398,8 @@ const MyAccount = () => {
                     </span>
                     <input
                       id="confirm_password"
+                      autoComplete="new-password" // disables browser autofill & eye
+                      inputMode="text" // hint for soft keyboard (mobile)
                       type={confirm_password ? "password" : "text"}
                       value={formDataPass.confirm_password}
                       onChange={handleChangePassword}
@@ -403,6 +419,7 @@ const MyAccount = () => {
                 </div>
                 <div className="flex justify-end mt-5">
                   <button
+                    disabled={loading}
                     onClick={handleUpdatePassword}
                     className={`px-5 py-2 text-white rounded-md ${
                       loading ? "bg-blue-400" : "bg-blue-500 hover:bg-blue-600"

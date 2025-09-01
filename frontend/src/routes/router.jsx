@@ -15,6 +15,8 @@ import TellerLayout from '../layout/TellerLayout';
 import Teller from '../pages/teller/Teller';
 import ForgetPassword from '../pages/default/ForgetPassword';
 import MyAccount from '../pages/main/MyAccount';
+import Home from '../pages/default/Home';
+import AttendanceList from '../pages/main/AttendanceList';
 
 const router = createBrowserRouter([
   {
@@ -23,7 +25,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to='/signin'/>
+        element: <Home />
       },
       {
         path: '/signin',
@@ -78,6 +80,10 @@ const router = createBrowserRouter([
       {
         path: '/my-account',
         element: <MyAccount />
+      },
+      {
+        path: '/attendance',
+        element: <AttendanceList />
       }
     ],
   },

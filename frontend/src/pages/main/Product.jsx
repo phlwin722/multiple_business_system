@@ -9,8 +9,8 @@ const Product = () => {
   const [rows, setRows] = useState([]);
   const columns = [
     {
-        name: "Business",
-        key: 'business_name'
+      name: "Business",
+      key: "business_name",
     },
     {
       name: "Product name",
@@ -35,15 +35,25 @@ const Product = () => {
       let response;
       if (business_id > 0) {
         response = await axiosClient.post("/product/index", {
-          user_id: user.id,
+          user_id: user.user_id,
           business_id: business_id,
-          product_name: search
+          product_name: search,
         });
       } else {
-        response = await axiosClient.post("/product/index", {
-          user_id: user.id,
-          product_name: search
-        });
+        if (user.position === "manager") {
+          response = await axiosClient.post("/product/index", {
+            user_id: user.user_id,
+            full_name: search,
+            business_id: user.business_id,
+            position: "manager",
+            product_name: search,
+          });
+        } else {
+          response = await axiosClient.post("/product/index", {
+            user_id: user.user_id,
+            product_name: search,
+          });
+        }
       }
 
       if (response.data.message) {
@@ -51,12 +61,13 @@ const Product = () => {
       }
     } catch (error) {
       console.log(error);
+      toastify("error", "Something went wrong. Please try again.");
     }
   };
 
   useEffect(() => {
     fetchData();
-    document.title = 'Product - Muibu'
+    document.title = "Product - Muibu";
   }, []);
 
   return (

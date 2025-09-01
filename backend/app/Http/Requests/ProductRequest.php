@@ -31,7 +31,7 @@ class ProductRequest extends FormRequest
             ],
             'price' => 'required',
             'quantity' => 'required',
-            'image' => 'required',
+            'image' => $id ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'business_id' => 'required',
             'user_id' => 'required',
         ];

@@ -6,7 +6,7 @@ const DefaultLayout = () => {
   const { token, typePosition } = useStateContext();
 
   if (token) {
-    if (typePosition === "admin") {
+    if (typePosition === "admin" || typePosition === 'manager') {
       return <Navigate to="/dashboard" />;
     } else {
       return <Navigate to="/teller" />;

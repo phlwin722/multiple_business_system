@@ -9,22 +9,28 @@ use Illuminate\Support\Facades\DB;
 
 class BussinessController extends Controller
 {
-    public function index (Request $request) {
+    public function index(Request $request)
+    {
         try {
-            $data = Business::where('user_id', $request->user_id)
-                ->orderBy('created_at', 'desc')
+            $data = Business::where('user_id', $request->user_id);
+
+            if ($request->search != null) {
+                $data->where('business_name', 'like', '%' . $request->search . '%');
+            }
+
+            $business = $data->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($data) {
-                return [
-                    'id' => $data->id,
-                    'business_name' => $data->business_name,
-                    'image' => asset($data->image),
-                ];
-            });
+                    return [
+                        'id' => $data->id,
+                        'business_name' => $data->business_name,
+                        'image' => asset($data->image),
+                    ];
+                });
 
             return response()->json([
                 'message' => 'Business list retrieved successfully',
-                'data' => $data,
+                'data' => $business,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -33,12 +39,13 @@ class BussinessController extends Controller
         }
     }
 
-    public function update (BussinessRequest $bussinessRequest) {
+    public function update(BussinessRequest $bussinessRequest)
+    {
         try {
             $business = Business::findOrFail($bussinessRequest->id);
             $business->update(['business_name' => $bussinessRequest->business_name]);
 
-           if ($bussinessRequest->hasFile('image')) {
+            if ($bussinessRequest->hasFile('image')) {
 
                 // delete the old message if it exist
                 if ($business->image) {
@@ -69,11 +76,11 @@ class BussinessController extends Controller
 
                     $business->update(['image' => $filePath]);
                 }
-           }
+            }
 
-           return response()->json([
+            return response()->json([
                 'message' => 'Updated successfully',
-           ]);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -81,25 +88,25 @@ class BussinessController extends Controller
         }
     }
 
-    public function delete (Request $request) {
+    public function delete(Request $request)
+    {
         try {
-           $ids = $request->input('ids');
+            $ids = $request->input('ids');
 
-           if (empty($ids) || !is_array($ids)) {
-            return response()->json([
-                'error' => 'Invalid request'
-            ],400);
-           }
+            if (empty($ids) || !is_array($ids)) {
+                return response()->json([
+                    'error' => 'Invalid request'
+                ], 400);
+            }
 
-           $deletedCount = Business::whereIn('id', $ids)->delete();
+            $deletedCount = Business::whereIn('id', $ids)->delete();
 
-           if ($deletedCount > 0) {
-            return response()->json([
-                'message' => 'Deleted successfully',
-                'deleted' => $deletedCount
-            ]);
-           }
-
+            if ($deletedCount > 0) {
+                return response()->json([
+                    'message' => 'Deleted successfully',
+                    'deleted' => $deletedCount
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -107,7 +114,8 @@ class BussinessController extends Controller
         }
     }
 
-    public function insert (BussinessRequest $bussinessRequest) {
+    public function insert(BussinessRequest $bussinessRequest)
+    {
         try {
             $data = $bussinessRequest->validated();
             $business = Business::create($data);
@@ -139,7 +147,6 @@ class BussinessController extends Controller
                 'message' => "Business created successfully",
                 'data' => $business
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -147,7 +154,8 @@ class BussinessController extends Controller
         }
     }
 
-    public function find (Request $request) {
+    public function find(Request $request)
+    {
         try {
             $data = Business::findOrFail($request->id);
 

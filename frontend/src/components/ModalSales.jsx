@@ -1,4 +1,3 @@
-
 const ModalSales = ({ isOpen, rows = [], title, onClose }) => {
   if (!isOpen) return null;
 
@@ -24,34 +23,40 @@ const ModalSales = ({ isOpen, rows = [], title, onClose }) => {
         </h2>
 
         <div className="overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-          {rows.map((sales) => (
-            <>
-              <div
-                className="flex items-center justify-between border border-gray-200 rounded-lg p-2 md:p-4 mb-3 hover:bg-gray-100 transition"
-                key={sales.id}
-              >
-                <div className="flex items-center gap-2 md:gap-4">
-                  <img
-                    src={sales.image}
-                    alt={sales.product_name}
-                    className="h-16 w-16 rounded object-cover border border-gray-200"
-                  />
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {sales.product_name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      x{sales.order_quantity} ₱
-                      {parseFloat(sales.price).toFixed(2)}
-                    </p>
+          {rows.length > 0 ? (
+            rows.map((sales) => (
+              <>
+                <div
+                  className="flex items-center justify-between border border-gray-200 rounded-lg p-2 md:p-4 mb-3 hover:bg-gray-100 transition"
+                  key={sales.id}
+                >
+                  <div className="flex items-center gap-2 md:gap-4">
+                    <img
+                      src={sales.image}
+                      alt={sales.product_name}
+                      className="h-16 w-16 rounded object-cover border border-gray-200"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {sales.product_name}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        x{sales.order_quantity} ₱
+                        {parseFloat(sales.price).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
+                  <p className="text-md lg:text-lg font-semibold text-gray-800">
+                    ₱{parseFloat(sales.price) * parseInt(sales.order_quantity)}
+                  </p>
                 </div>
-                <p className="text-md lg:text-lg font-semibold text-gray-800">
-                  ₱{parseFloat(sales.price) * parseInt(sales.order_quantity)}
-                </p>
-              </div>
-            </>
-          ))}
+              </>
+            ))
+          ) : (
+            <div className="h-[30vh] flex items-center justify-center">
+              <p className="text-center font-medium text-gray-700 text-2xl">No data found</p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

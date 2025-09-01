@@ -49,7 +49,7 @@ class EmployeeRequest extends FormRequest
                     ->numbers()
             ],
             'position' => 'required',
-            'image' => 'required',
+            'image' => $id ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'user_id' => 'required',
             'business_id' => 'required',
         ];

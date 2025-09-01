@@ -5,31 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\SetupPasswordRequest;
 use Illuminate\Http\Request;
-use App\Http\Requests\SignupRequest;
+use App\Http\Requests\SignUpRequest;
 use App\Http\Requests\SignInRequest;
 use App\Models\User;
 use App\Mail\ForgetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    public function register(SignUpRequest $signupRequest)
+public function register(SignUpRequest $signUpRequest)
     {
         try {
-            $data = $signupRequest->validated();
+
+            $data = $signUpRequest->validated();
+            $data['password'] = bcrypt($data['password']);
             $user = User::create($data);
 
-            if ($user) {
-                return response()->json([
-                    'message' => 'Registered successfully'
-                ]);
-            }
-        } catch (\Exception $e) {
+            $user->update(['user_id' => $user->id]);
+
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'message' => 'Registered successfully'
+            ], 201);
+        } catch (\Exception $e) { 
+            return response()->json([
+                'error' => 'Something went wrong. Please try again later.'
+            ], 500);
         }
     }
 
@@ -53,10 +57,14 @@ class UserController extends Controller
                 'updated_at' => now(),
             ]);
 
-            Attendance::create([
-                'user_id' => $user->id,
-                'time_in' => now()
-            ]);
+            if ($user->position != 'admin') {
+                Attendance::create([
+                    'user_id' => $user->user_id,
+                    'id_user_create' => $user->id,
+                    'business_id' => $user->business_id,
+                    'time_in' => now()
+                ]);
+            }
 
             return response()->json([
                 'user' => [
@@ -64,11 +72,13 @@ class UserController extends Controller
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'business_id' => $user->business_id,
+                    'user_id' => $user->user_id,
                     'image' => $user->image ? asset($user->image) : null,
+                    'business_image' => optional($user->business)->image ? asset($user->business->image) : null,
                     'position' => $user->position,
                     'email' => $user->email,
                     'business_id' => $user->business_id,
-                    'business_name' => $user->business->business_name ?? null,
+                    'business_name' => optional($user->business)->business_name,
                 ],
                 'token' => $token,
             ]);
@@ -92,12 +102,12 @@ class UserController extends Controller
 
             $user->currentAccessToken()->delete();
 
-            $latest = Attendance::where('user_id', $request->id)
-                ->whereNull('time_out')
-                ->orderByDesc('time_in')
-                ->first();
+            if ($user->position != 'admin') {
+                $latest = Attendance::where('id_user_create', $request->id)
+                    ->whereNull('time_out')
+                    ->orderByDesc('time_in')
+                    ->first();
 
-            if ($latest) {
                 $latest->update([
                     'time_out' => now()
                 ]);
@@ -126,10 +136,8 @@ class UserController extends Controller
                 ], 421);
             }
 
-            // generated 6 degit code
             $generatedCode = (string) rand(100000, 900000);
 
-            // Build the email data
             $mailData = [
                 'fullname' => $user->first_name . " " . $user->last_name,
                 'email' => $user->email,
@@ -157,7 +165,6 @@ class UserController extends Controller
             $data = $request->validated();
             $userID = $request->id ? $request->id : $request->user_id;
 
-            // Use the authenticated user instead of trusting user input
             $user = User::findOrFail($userID);
 
             $user->password = bcrypt($data['new_password']);
@@ -174,11 +181,11 @@ class UserController extends Controller
     }
 
 
-    public function UserUpdate(SignUpRequest $signupRequest)
+    public function UserUpdate(SignUpRequest $signupRequest, $id)
     {
         try {
             $data = $signupRequest->validated();
-            $user = User::findOrFail($signupRequest->id);
+            $user = User::findOrFail($id);
             $user->update([
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],

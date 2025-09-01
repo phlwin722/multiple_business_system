@@ -11,9 +11,6 @@ import { FaUserCog } from "react-icons/fa";
 const MainLayout = () => {
   const { token, user, typePosition, setTypePostion, setToken, setUser } =
     useStateContext();
-  const [isCollapsed, setCollapsed] = useState(false);
-  const [myAccount, setMyAccount] = useState(false);
-  const navigate = useNavigate();
 
   if (!token || !user) {
     setToken(null);
@@ -25,6 +22,12 @@ const MainLayout = () => {
   if (typePosition == "teller") {
     return <Navigate to="/teller" />;
   }
+
+  const [isCollapsed, setCollapsed] = useState(false);
+  const [myAccount, setMyAccount] = useState(false);
+
+  const firstChar = `${user.first_name.charAt(0)} ${user.last_name.charAt(0)}`;
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex">
@@ -42,7 +45,17 @@ const MainLayout = () => {
             isCollapsed ? "justify-center" : ""
           }`}
         >
-          <img src={user.image} alt="" className="w-10 h-10 rounded-md" />
+          {user.image ? (
+            <img
+              src={user.image}
+              alt=""
+              className="w-10 h-10 rounded-md bg-gray-300"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-md bg-gray-300 flex items-center justify-center font-medium">
+              {firstChar}
+            </div>
+          )}
           {!isCollapsed && (
             <div className="flex justify-between items-center w-52 ml-3 relative">
               <div className="leading-4">
@@ -89,10 +102,20 @@ const MainLayout = () => {
           >
             <Sidebar isCollapsed={false} setCollapsed={setCollapsed} />
             <div className="flex p-3 border-t border-gray-200 items-center relative">
-              <img src={user.image} alt="" className="w-10 h-10 rounded-md bg-gray-300" />
+              {user.image ? (
+                <img
+                  src={user.image}
+                  alt=""
+                  className="w-10 h-10 rounded-md bg-gray-300"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-md bg-gray-300 flex items-center justify-center font-medium">
+                  {firstChar}
+                </div>
+              )}
               <div className="flex justify-between items-center w-52 ml-3">
                 <div className="leading-4">
-                  <h4 className="font-semibold">{`${user.first_name} ${user.last_name}`}</h4>
+                  <h4 className="font-semibold truncate max-w-[160px]">{`${user.first_name} ${user.last_name}`}</h4>
                   <span className="text-s  text-gray-600 truncate block max-w-[160px]">
                     {user.email}
                   </span>

@@ -15,7 +15,7 @@ const BusinessForm = () => {
 
   const { user } = useStateContext();
 
-  const bussinessName = useRef(null);
+  const businessName = useRef(null);
   const fileInputRef = useRef(null);
 
   const [imageFile, setImageFile] = useState();
@@ -23,6 +23,16 @@ const BusinessForm = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [businessID, setBusinessID] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const handleChangeInput = (ref) => {
+    const input = ref.current;
+    if (input) {
+      const capitalized = input.value.replace(/\b\w/g, (c) => c.toUpperCase());
+      if (input.value !== capitalized) {
+        input.value = capitalized;
+      }
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -46,7 +56,7 @@ const BusinessForm = () => {
       if (id) {
         // update
         const payLoad = new FormData();
-        payLoad.append("business_name", bussinessName.current.value);
+        payLoad.append("business_name", businessName.current.value);
         payLoad.append("id", businessID);
         payLoad.append("user_id", user.id);
         if (imageFile) {
@@ -66,7 +76,7 @@ const BusinessForm = () => {
       } else {
         // create
         const payLoad = new FormData();
-        payLoad.append("business_name", bussinessName.current.value);
+        payLoad.append("business_name", businessName.current.value);
         payLoad.append("user_id", user.id);
         if (imageFile) {
           payLoad.append("image", imageFile);
@@ -86,7 +96,10 @@ const BusinessForm = () => {
     } catch (error) {
       if (error.response?.status === 422) {
         setErrors(error.response.data.errors);
+      } else if (error.response?.status === 413) {
+        setErrors({ image: ["The image must not be greater than 2Mb."] });
       } else {
+        console.log(error);
         toastify("error", "Something went wrong. Please try again.");
       }
     } finally {
@@ -101,13 +114,14 @@ const BusinessForm = () => {
       });
 
       if (response.data.message) {
-        bussinessName.current.value = response.data.data.business_name;
+        businessName.current.value = response.data.data.business_name;
         setBusinessID(response.data.data.id);
         setImagePreview(response.data.data.image);
         setImageFile(response.data.data.image);
       }
     } catch (error) {
       console.log(error);
+      toastify("error", "Something went wrong. Please try again.");
     }
   };
 
@@ -141,9 +155,11 @@ const BusinessForm = () => {
           <input
             id="business_name"
             type="text"
-            ref={bussinessName}
-            className={`w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.business_name ? "border-red-500" : "border-gray-300"
+            ref={businessName}
+            autoComplete="off"
+            onChange={() => handleChangeInput(businessName)}
+            className={`w-full border px-4 py-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.business_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
           />
           {errors.business_name && (
@@ -161,7 +177,7 @@ const BusinessForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500" : "border-gray-300"
+              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -203,7 +219,10 @@ const BusinessForm = () => {
           </button>
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded transition"
+            disabled={loading}
+            className={`text-white px-5 py-2 rounded transition ${
+              loading ? 'bg-blue-500' : 'bg-blue-500 hover:bg-blue-600'
+            }`}
           >
             Save
           </button>
