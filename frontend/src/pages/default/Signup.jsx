@@ -48,6 +48,7 @@ const Signup = () => {
         setErrors(error.response.data.errors);
       } else {
         toastify("error", "Something went wrong. Please try again later.");
+        console.log(error)
       }
     } finally {
       setLoading(false);

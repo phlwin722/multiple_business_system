@@ -5,6 +5,8 @@ import Modal from "./Modal";
 import axiosClient from "../axiosClient";
 import { useStateContext } from "../contexts/ContextProvider";
 import toastify from "./toastify";
+import { CiSearch } from "react-icons/ci";
+import { MdOutlineBusiness } from "react-icons/md";
 
 const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const navigate = useNavigate();
@@ -16,6 +18,15 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const [listBusiness, setListBusiness] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedBusinessId, setSelectedBusinessId] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalPages = Math.ceil(rows.length / itemsPerPage);
+
+  const paginatedRows = rows.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const toggleRow = (id) => {
     setSelectedRows((prev) =>
@@ -71,6 +82,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchData(selectedBusinessId, searchValue);
+      setCurrentPage(1); // Reset to first page
     }, 500); // delay in ms
 
     return () => clearTimeout(delayDebounce); // cleanup
@@ -82,7 +94,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
         if (type) {
           if (user.position != "manager") {
             const response = await axiosClient.post(`${url}/fetchBusinesses`, {
-              user_id: user.id,
+              user_id: user.user_id,
             });
 
             if (response.data.data) {
@@ -114,11 +126,12 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
         <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4">
           {type && user.position != "manager" && (
             <div className="relative w-full sm:w-52">
+              <MdOutlineBusiness className="absolute left-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none" />
               <select
                 id="business"
                 value={selectedBusinessId}
                 onChange={(e) => setSelectedBusinessId(e.target.value)}
-                className="peer block w-full appearance-none border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="peer block w-full appearance-none border border-gray-300 bg-white pl-10 p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="" hidden></option>
                 <option value="0">All</option>
@@ -130,7 +143,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
               </select>
               <label
                 htmlFor="business"
-                className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+                className={`absolute left-10 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
                   selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""
                 }`}
               >
@@ -139,18 +152,20 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
             </div>
           )}
           <div className="relative w-full sm:w-64">
+            <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none" />
+
             <input
               type="search"
               id="search"
               autoComplete="off"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="peer block w-full border border-gray-300 bg-white p-2 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="peer block w-full border border-gray-300 bg-white p-2 pl-10 pt-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder=""
             />
             <label
               htmlFor="search"
-              className={`absolute left-2 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+              className={`absolute left-10 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
                 searchValue ? "text-xs top-[4px] text-blue-600" : ""
               }`}
             >
@@ -190,7 +205,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left overflow-x-auto">
+          <table className="w-full text-sm text-left overflow-x-auto border-b border-gray-300">
             <thead className="bg-gray-50 text-gray-700 border-b border-gray-300">
               <tr>
                 <th className="px-4 py-3 w-10">
@@ -205,8 +220,8 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
               </tr>
             </thead>
             <tbody>
-              {rows.length > 0 ? (
-                rows.map((row) => (
+              {paginatedRows.length > 0 ? (
+                paginatedRows.map((row) => (
                   <tr
                     key={row.id}
                     className={`transition hover:bg-gray-50 ${
@@ -270,6 +285,51 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
               )}
             </tbody>
           </table>
+          {paginatedRows.length > 0 && (
+            <div className="flex justify-center mt-4 pb-4 flex-wrap gap-1">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 border rounded text-sm ${
+                  currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-1 border rounded text-sm ${
+                      currentPage === page
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 border rounded text-sm ${
+                  currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

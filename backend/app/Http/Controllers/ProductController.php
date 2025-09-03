@@ -204,14 +204,24 @@ class ProductController extends Controller
         try {
             $data = Business::where('user_id', $request->user_id)
                 ->orderBy('created_at', 'asc')
-                ->get();
+                ->get()
+                ->map(function ($business) {
+                    return [
+                        'id' => $business->id,
+                        'business_name' => $business->business_name,
+                        'image' => asset($business->image),
+                        'user_id' => $business->user_id,
+                        'created_at' => $business->created_at,
+                    ];
+                });
+
             return response()->json([
-                'data' => $data
+                'data' => $data,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage()
-            ]);
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }
