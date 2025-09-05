@@ -14,7 +14,50 @@ class ProductController extends Controller
     {
         try {
             // Initialize query builder
-            $query = Product::where('user_id', $request->user_id);
+            $query = Product::where('user_id', $request->user_id)
+                ->where('status', '!=', 'Deactivate');
+
+            if ($request->has('business_id') && $request->business_id > 0) {
+                $query->where('business_id', $request->business_id);
+            }
+
+            if ($request->product_name != null) {
+                $query->where('product_name', 'like', '%' . $request->product_name . '%');
+            }
+
+            // Execute query with ordering
+            $products =  $query->with('business')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'product_name' => $product->product_name,
+                        'price' => $product->price,
+                        'quantity' => $product->quantity,
+                        'image' => asset($product->image),
+                        'business_id' => $product->business_id,
+                        'business_name' => $product->business->business_name ?? null, // <-- Here
+                    ];
+                });
+
+            return response()->json([
+                'message' => 'Product list retrieved successfully',
+                'data' => $products,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function Archive(Request $request)
+    {
+        try {
+            // Initialize query builder
+            $query = Product::where('user_id', $request->user_id)
+                ->where('status', '!=', 'Activate');
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);
@@ -118,7 +161,33 @@ class ProductController extends Controller
                 ], 400);
             }
 
-            $deletedCount = Product::whereIn('id', $ids)->delete();
+            $deletedCount = Product::whereIn('id', $ids)->update(['status' => "Deactivate"]);
+
+            if ($deletedCount > 0) {
+                return response()->json([
+                    'message' => 'Deleted successfully',
+                    'deleted' => $deletedCount
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function restore(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+
+            if (empty($ids) || !is_array($ids)) {
+                return response()->json([
+                    'error' => 'Invalid request'
+                ], 400);
+            }
+
+            $deletedCount = Product::whereIn('id', $ids)->update(['status' => "Activate"]);
 
             if ($deletedCount > 0) {
                 return response()->json([

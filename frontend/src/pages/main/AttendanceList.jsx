@@ -229,7 +229,7 @@ const AttendanceList = () => {
       }
 
       // Convert logo image to base64 (from API full URL)
-      const logoUrl = business.image.replace("http://127.0.0.1:8002", "");
+      const logoUrl = business.image.replace("http://127.0.0.1:8000", "");
       const logoBase64 = await toBase64FromUrl(logoUrl);
 
       // Generate PDF with current attendance data and business info

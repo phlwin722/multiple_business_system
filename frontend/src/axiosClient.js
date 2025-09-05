@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: 'http://127.0.0.1:8002/api'
+  baseURL: 'http://127.0.0.1:8000/api'
 });
 
 axiosClient.interceptors.request.use((config) => {
@@ -17,7 +17,7 @@ axiosClient.interceptors.request.use((response) => {
   return response
 }, (error) => {
   try {
-    if (error.response.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('ACCESS_TOKEN')
       localStorage.removeItem('user_info')
       localStorage.removeItem('TYPE_POSITION')

@@ -16,7 +16,7 @@ const Notfound = () => {
         check the URL or return to the homepage.
       </p>
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/dashboard')}
         className="bg-blue-500 px-6 cursor-pointer py-2 text-white rounded-md hover:bg-blue-700 transition duration-300"
       >
         Go to Homepage

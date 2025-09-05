@@ -99,6 +99,27 @@ class BussinessController extends Controller
                 ], 400);
             }
 
+            $businesses = Business::with(['users', 'products'])->whereIn('id', $ids)->get();
+            $blocked = [];
+
+            foreach ($businesses as $business) {
+                if ($business->users()->exists() || $business->products()->exists()) {
+                    $blocked[] = [
+                        'id' => $business->id,
+                        'name' => $business->business_name,
+                        'has_users' => $business->users()->exists(),
+                        'has_products' => $business->products()->exists()
+                    ];
+                }
+            }
+
+            if (!empty($blocked)) {
+                return response()->json([
+                    'error' => 'Cannot delete businesses with related data.',
+                    'blocked' => $blocked
+                ], 400);
+            }
+
             $deletedCount = Business::whereIn('id', $ids)->delete();
 
             if ($deletedCount > 0) {

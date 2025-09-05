@@ -32,12 +32,15 @@ const Login = () => {
 
       const response = await axiosClient.post(`${URL}/signin`, payLoad);
       if (response.data.user) {
+        const position = response.data.user.position;
+
+        // ✅ First: set state
         setUser(response.data.user);
         setToken(response.data.token);
-        setTypePostion(response.data.user.position);
+        setTypePostion(position);
 
-        const position = response.data.user.position.toLowerCase();
-        if (position === "admin" || position === "manager") {
+        // ✅ Then: navigate
+        if (position.trim() === "Admin" || position.trim() === "Manager") {
           navigate("/dashboard");
         } else {
           navigate("/teller");
@@ -67,7 +70,8 @@ const Login = () => {
           Welcome Back
         </h2>
         <p className="text-sm text-center text-gray-500 mt-2 mb-6">
-          Sign in to continue managing your business with <span className="text-blue-600 font-semibold">Muibu</span>
+          Sign in to continue managing your business with{" "}
+          <span className="text-blue-600 font-semibold">Muibu</span>
         </p>
 
         {/* Global error */}
@@ -95,7 +99,9 @@ const Login = () => {
               ref={email}
               autoComplete="off"
               className={`mt-2 w-full px-4 py-2 rounded-lg border shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200 ${
-                errors.email ? "border-red-500  focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                errors.email
+                  ? "border-red-500  focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                  : "border-gray-300"
               }`}
             />
             {errors?.email && (
@@ -105,7 +111,10 @@ const Login = () => {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block font-medium text-gray-700"
+            >
               Password
             </label>
             <div className="relative mt-2">
@@ -115,7 +124,9 @@ const Login = () => {
                 autoComplete="new-password"
                 inputMode="text"
                 className={`w-full px-4 py-2 rounded-lg border shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200 ${
-                  errors.password ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                  errors.password
+                    ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                    : "border-gray-300"
                 }`}
               />
               <span

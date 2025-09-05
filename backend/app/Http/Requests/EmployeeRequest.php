@@ -52,6 +52,7 @@ class EmployeeRequest extends FormRequest
             'image' => $id ? 'nullable|image|max:2048' : 'required|image|max:2048',
             'user_id' => 'required',
             'business_id' => 'required',
+            'statuss' => 'nullable',
         ];
     }
 

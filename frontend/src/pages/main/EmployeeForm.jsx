@@ -67,8 +67,10 @@ const EmployeeForm = () => {
       formData.append("business_id", business.current.value);
       formData.append("user_id", user.id);
 
-      if (imageFile instanceof File) {
+      if (!id && imageFile instanceof File) {
         formData.append("image", imageFile);
+      } else if (id && imageFile instanceof File) {
+        formData.append("image", imageFile); // optional in update
       }
 
       if (password.current.value) {
@@ -89,6 +91,7 @@ const EmployeeForm = () => {
           navigate("/employee");
         }
       } else {
+        formData.append("statuss", "Activate");
         const response = await axiosClient.post(`/employee/create`, formData, {
           headers: {
             "Content-type": "multipart/form-data",
@@ -128,10 +131,10 @@ const EmployeeForm = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (realID) => {
     try {
       const response = await axiosClient.post("/employee/find", {
-        id: id,
+        id: realID,
       });
 
       if (response.data.message) {
@@ -141,8 +144,10 @@ const EmployeeForm = () => {
         position.current.value = response.data.data.position;
         business.current.value = response.data.data.business_id;
         setImagePreview(response.data.data.image);
-        setImageFile(response.data.data.image);
+        setImageFile(null);
         setProductID(response.data.data.id);
+      } else {
+        navigate("*");
       }
     } catch (error) {
       console.log(error);
@@ -151,7 +156,19 @@ const EmployeeForm = () => {
 
   useEffect(() => {
     if (id) {
-      fetchData();
+      try {
+        const decode = atob(id);
+        const [code, realID] = decode.split("|");
+
+        if (!realID) {
+          throw new Error("Decoded ID is missing");
+        }
+
+        fetchData(realID);
+      } catch (error) {
+        console.error("Invalid ID:", error);
+        navigate("*"); // Redirect to 404 or catch-all route
+      }
     }
     fetchBusinesses();
 
@@ -177,7 +194,9 @@ const EmployeeForm = () => {
             autoComplete="off"
             onChange={() => handleChangeInput(firstName)}
             className={`border border-gray-300 rounded-md  block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.first_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.first_name
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.first_name && (
@@ -196,7 +215,9 @@ const EmployeeForm = () => {
             autoComplete="off"
             onChange={() => handleChangeInput(lastName)}
             className={`border border-gray-300 rounded-md  block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.last_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.last_name
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.last_name && (
@@ -214,7 +235,9 @@ const EmployeeForm = () => {
             autoComplete="off"
             ref={email}
             className={`border border-gray-300 rounded-md  block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.email ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.email
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.email && (
@@ -239,7 +262,9 @@ const EmployeeForm = () => {
               inputMode="text" // hint for soft keyboard (mobile)
               ref={password}
               className={`border border-gray-300 rounded-md  w-full py-2 px-4 mt-1 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                errors?.password ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+                errors?.password
+                  ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                  : "border-gray-300"
               }`}
               type={hidden ? "password" : "text"}
             />
@@ -257,7 +282,9 @@ const EmployeeForm = () => {
             id="position"
             ref={position}
             className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.position ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.position
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           >
             <option value="" hidden>
@@ -279,7 +306,9 @@ const EmployeeForm = () => {
             id="business_id"
             ref={business}
             className={`block border mt-1 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.business_id ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.business_id
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           >
             {listBusiness.length > 0 ? (
@@ -308,7 +337,9 @@ const EmployeeForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors?.image
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -353,7 +384,7 @@ const EmployeeForm = () => {
               type="submit"
               disabled={loading}
               className={`text-white px-5 py-2 rounded transition ${
-                loading ? 'bg-blue-400' : 'bg-blue-500 hover:bg-blue-600 '
+                loading ? "bg-blue-400" : "bg-blue-500 hover:bg-blue-600 "
               }`}
             >
               Save

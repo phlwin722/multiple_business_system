@@ -37,7 +37,7 @@ const MainLayout = () => {
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
-        <div>
+        <div onClick={() => setCollapsed(false)}>
           <Sidebar isCollapsed={isCollapsed} setCollapsed={setCollapsed} />
         </div>
         <div
@@ -89,7 +89,7 @@ const MainLayout = () => {
       {/* 🟥 Sidebar overlay for small screens (mobile) */}
       {isCollapsed && (
         <div
-          onClick={() => (setCollapsed(false), setMyAccount(false))}
+          onClick={() => ((e) => e.stopPropagation())}
           className={`fixed inset-0 z-[9999] flex md:hidden ${
             isCollapsed ? "" : "pointer-events-none"
           }`}

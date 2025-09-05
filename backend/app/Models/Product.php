@@ -22,7 +22,7 @@ class Product extends Model
         return $this->belongsTo(Business::class, 'business_id');
     }
 
-    public function sale() {
+    public function sales() {
         return $this->hasMany(Sale::class, 'product_id');
     }
 }

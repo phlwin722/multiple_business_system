@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/ContextProvider";
 
-const Employee = () => {
+const EmployeeArchive = () => {
   const { user } = useStateContext();
   const [rows, setRows] = useState([]);
   const columns = [
@@ -37,21 +37,21 @@ const Employee = () => {
     try {
       let response;
       if (business_id > 0) {
-        response = await axiosClient.post("/employee/index", {
+        response = await axiosClient.post("/employee/archive", {
           user_id: user.id,
           business_id: business_id,
           full_name: search,
         });
       } else {
         if (user.position === "manager") {
-          response = await axiosClient.post("/employee/index", {
+          response = await axiosClient.post("/employee/archive", {
             user_id: user.user_id,
             full_name: search,
             business_id: user.business_id,
             position: "teller",
           });
         } else {
-          response = await axiosClient.post("/employee/index", {
+          response = await axiosClient.post("/employee/archive", {
             user_id: user.user_id,
             full_name: search,
           });
@@ -74,17 +74,17 @@ const Employee = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-gray-700 text-2xl font-semibold mb-4">Employee</h1>
+      <h1 className="text-gray-700 text-2xl font-semibold mb-4">Employee Archive</h1>
       <Table
         columns={columns}
         rows={rows}
         url={"/employee"}
         fetchData={fetchData}
         type={true}
-        archive={false}
+        archive={true}
       />
     </div>
   );
 };
 
-export default Employee;
+export default EmployeeArchive

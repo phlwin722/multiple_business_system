@@ -72,13 +72,14 @@ const Product = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Product</h1>
+      <h1 className="text-gray-700 text-2xl font-semibold mb-4">Product</h1>
       <Table
         columns={columns}
         rows={rows}
         url={"/product"}
         fetchData={fetchData}
         type={true}
+        archive={false}
       />
     </div>
   );

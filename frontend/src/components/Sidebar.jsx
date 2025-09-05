@@ -5,6 +5,7 @@ import { MdOutlineBusiness } from "react-icons/md";
 import { MdLogout } from "react-icons/md";
 import axiosClient from "../axiosClient";
 import { useEffect, useState } from "react";
+import { IoIosArrowBack } from "react-icons/io";
 import { useStateContext } from "../contexts/ContextProvider";
 import Loading from "./loading";
 import { IoPeople } from "react-icons/io5";
@@ -20,9 +21,26 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
   const { user, setTypePostion, setUser, setToken } = useStateContext();
 
   const [menuItems, setMenuItems] = useState([]);
+  const [openMenus, setOpenMenus] = useState({});
+
+  const toggleMenu = (name) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [name]: !prev[name],
+    }));
+  };
+
+  const getExactPathFor = (parentName) => {
+    const map = {
+      Business: "/business",
+      Employee: "/employee",
+      Product: "/product",
+    };
+    return map[parentName] || "";
+  };
 
   const validating = () => {
-    if (user.position === "admin") {
+    if (user.position === "Admin") {
       setMenuItems([
         {
           name: "Dashboard",
@@ -36,13 +54,31 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
         },
         {
           name: "Employee",
-          path: "/employee",
           icon: <IoPeople side={23} />,
+          Children: [
+            {
+              name: "List",
+              path: "/employees",
+            },
+            {
+              name: "Archive",
+              path: "/employee/archives",
+            },
+          ],
         },
         {
           name: "Product",
-          path: "/product",
           icon: <FaBoxOpen size={23} />,
+          Children: [
+            {
+              name: "List",
+              path: "/products",
+            },
+            {
+              name: "Archive",
+              path: "/product/archives",
+            },
+          ],
         },
         {
           name: "Attendance",
@@ -51,7 +87,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
         },
         {
           name: "Sales",
-          path: "/sale",
+          path: "/sales",
           icon: <BsGraphUpArrow size={23} />,
         },
         {
@@ -70,13 +106,31 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
         },
         {
           name: "Employee",
-          path: "/employee",
           icon: <IoPeople side={23} />,
+          Children: [
+            {
+              name: "List",
+              path: "/employees",
+            },
+            {
+              name: "Archive",
+              path: "/employee/archives",
+            },
+          ],
         },
         {
           name: "Product",
-          path: "/product",
           icon: <FaBoxOpen size={23} />,
+          Children: [
+            {
+              name: "List",
+              path: "/products",
+            },
+            {
+              name: "Archive",
+              path: "/product/archives",
+            },
+          ],
         },
         {
           name: "Attendance",
@@ -85,7 +139,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
         },
         {
           name: "Sales",
-          path: "/sale",
+          path: "/sales",
           icon: <BsGraphUpArrow size={23} />,
         },
         {
@@ -133,21 +187,78 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
       </div>
 
       <ul className="space-y-2">
-        {menuItems.map((items) => (
-          <li key={items.name}>
-            {items.action ? (
+        {menuItems.map((item) => (
+          <li key={item.name}>
+            {item.action ? (
+              // Logout button
               <button
                 onClick={handleLogout}
                 className={`flex items-center gap-3 cursor-pointer p-2 w-full text-left rounded-md transition-colors text-gray-700 hover:bg-gray-200 ${
                   isCollapsed ? "justify-center" : ""
                 }`}
               >
-                {items.icon}
-                {!isCollapsed && <span>{items.name}</span>}
+                {item.icon}
+                {!isCollapsed && <span>{item.name}</span>}
               </button>
+            ) : item.Children ? (
+              // Parent with dropdown
+              <div>
+                <button
+                  onClick={() => toggleMenu(item.name)}
+                  className={`flex items-center justify-between gap-3 p-2 w-full text-left rounded-md transition-colors text-gray-700 hover:bg-gray-200 ${
+                    isCollapsed ? "justify-center" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    {!isCollapsed && <span>{item.name}</span>}
+                  </div>
+                  {!isCollapsed && (
+                    <span
+                      className={`transform transition-transform ${
+                        openMenus[item.name] ? "-rotate-90" : ""
+                      }`}
+                    >
+                      <IoIosArrowBack />
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown children */}
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isCollapsed
+                      ? "max-h-0"
+                      : openMenus[item.name]
+                      ? "max-h-40"
+                      : "max-h-0"
+                  }`}
+                >
+                  <ul className="ml-6 mt-1 space-y-1">
+                    {item.Children.map((child) => (
+                      <li key={child.name}>
+                        <NavLink
+                          to={child.path}
+                          end={child.path === getExactPathFor(item.name)}
+                          className={({ isActive }) =>
+                            `block px-2 py-1 rounded-md text-sm transition-colors ${
+                              isActive
+                                ? "bg-blue-500 text-white"
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`
+                          }
+                        >
+                          {child.name}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             ) : (
+              // Normal NavLink
               <NavLink
-                to={items.path}
+                to={item.path}
                 className={({ isActive }) =>
                   `flex items-center gap-3 p-2 rounded-md transition-colors ${
                     isActive
@@ -156,8 +267,8 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
                   } ${isCollapsed ? "justify-center" : ""}`
                 }
               >
-                {items.icon}
-                {!isCollapsed && <span>{items.name}</span>}
+                {item.icon}
+                {!isCollapsed && <span>{item.name}</span>}
               </NavLink>
             )}
           </li>

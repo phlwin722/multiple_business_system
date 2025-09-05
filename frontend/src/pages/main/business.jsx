@@ -57,13 +57,14 @@ const Business = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Businesses</h1>
+      <h1 className="text-2xl font-semibold mb-4 text-gray-700">Businesses</h1>
       <Table
         columns={columns}
         rows={rows}
         url={"/business"}
         fetchData={fetchData}
         type={false}
+        archive={false}
       />
     </div>
   );

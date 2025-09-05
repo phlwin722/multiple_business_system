@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,8 +19,8 @@ Route::prefix('auth')->controller(UserController::class)->group(function () {
     Route::post('/signin', 'login');
     Route::post('/email-verification', 'email');
     Route::post('/change-password', 'UpdatePassword');
-    Route::middleware('auth:sanctum')->post('/logout', 'logout'); 
-    Route::middleware('auth:sanctum')->post('/user-update/{id}','UserUpdate');
+    Route::middleware('auth:sanctum')->post('/logout', 'logout');
+    Route::middleware('auth:sanctum')->post('/user-update/{id}', 'UserUpdate');
 });
 
 Route::prefix('business')->middleware('auth:sanctum')->controller(BussinessController::class)->group(function () {
@@ -39,6 +40,8 @@ Route::prefix('product')->middleware('auth:sanctum')->controller(ProductControll
     Route::post('/index', 'index');
     Route::post('/find', 'find');
     Route::post('fetchBusinesses', 'fetchBusinesses');
+    Route::post('/archive', 'Archive');
+    Route::post('/restore', 'restore');
 });
 
 Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeController::class)->group(function () {
@@ -49,6 +52,8 @@ Route::prefix('employee')->middleware('auth:sanctum')->controller(EmployeeContro
     Route::post('/index', 'index');
     Route::post('/find', 'find');
     Route::post('fetchBusinesses', 'fetchBusinesses');
+    Route::post('/archive', 'Archive');
+    Route::post('/restore', 'restore');
 });
 
 Route::prefix('sale')->middleware('auth:sanctum')->controller(SaleController::class)->group(function () {
@@ -57,5 +62,14 @@ Route::prefix('sale')->middleware('auth:sanctum')->controller(SaleController::cl
 });
 
 Route::prefix('attendance')->middleware('auth:sanctum')->controller(AttendanceController::class)->group(function () {
-    Route::post('/index','index');
+    Route::post('/index', 'index');
+});
+
+Route::prefix('dashboard')->middleware("auth:sanctum")->controller(DashboardController::class)->group(function () {
+    Route::get('/sales/{id}', 'sales');
+    Route::get('/employee/{id}','employee');
+    Route::get('/products/{id}','products');
+    Route::get('/business/{id}','business');
+    Route::get('/product-list/{id}', 'ProductList');
+    Route::get('/product-out-of-stock/{id}', 'OutOfStock');
 });

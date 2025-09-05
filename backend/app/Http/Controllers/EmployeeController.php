@@ -14,7 +14,59 @@ class EmployeeController extends Controller
         try {
 
             $query = User::where('user_id', $request->user_id)
-                        ->where('position', '!=' , 'admin');
+                        ->where('position', '!=' , 'admin')
+                        ->where('statuss', '!=', 'Deactivate');
+
+            if ($request->has('business_id') && $request->business_id > 0) {
+                $query->where('business_id', $request->business_id);
+            }
+
+            if ($request->has('position') && $request->business_id > 0) {
+                $query->where('position', $request->position);
+            }
+
+            if ($request->full_name != null) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('first_name', 'like', '%' . $request->full_name . '%')
+                        ->orWhere('last_name', 'like', '%' . $request->full_name . '%');
+                });
+            }
+
+            // Execute query with ordering
+            $employee = $query->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($employeee) {
+                    return [
+                        'id' => $employeee->id,
+                        'full_name' => "{$employeee->first_name} {$employeee->last_name}", // <-- Correct
+                        'email' => $employeee->email,
+                        'position' => $employeee->position,
+                        'image' => asset($employeee->image),
+                        'status' => $employeee->status ?? 'Offline', // <-- Corrected logic
+                        'business_id' => $employeee->business_id,
+                        'user_id' => $employeee->user_id,
+                        'business_name' => $employeee->business->business_name ?? null, // <-- Here
+                    ];
+                });
+
+            return response()->json([
+                'message' => 'Employee list retrieved successfully',
+                'data' => $employee,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function Archive(Request $request)
+    {
+        try {
+
+            $query = User::where('user_id', $request->user_id)
+                        ->where('position', '!=' , 'admin')
+                        ->where('statuss', '!=', 'Activate');
 
             if ($request->has('business_id') && $request->business_id > 0) {
                 $query->where('business_id', $request->business_id);
@@ -133,11 +185,37 @@ class EmployeeController extends Controller
                 ], 400);
             }
 
-            $deletedCount = User::whereIn('id', $ids)->delete();
+            $deletedCount = User::whereIn('id', $ids)->update(['statuss' => 'Deactivate']);
 
             if ($deletedCount > 0) {
                 return response()->json([
                     'message' => 'Deleted successfully',
+                    'deleted' => $deletedCount
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+        public function restore(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+
+            if (empty($ids) || !is_array($ids)) {
+                return response()->json([
+                    'error' => 'Invalid request'
+                ], 400);
+            }
+
+            $deletedCount = User::whereIn('id', $ids)->update(['statuss' => 'Activate']);
+
+            if ($deletedCount > 0) {
+                return response()->json([
+                    'message' => 'Restore successfully',
                     'deleted' => $deletedCount
                 ]);
             }
