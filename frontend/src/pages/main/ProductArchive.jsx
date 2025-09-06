@@ -1,9 +1,10 @@
+import React from "react";
 import Table from "../../components/Table";
 import { useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { useStateContext } from "../../contexts/ContextProvider";
 
-const Employee = () => {
+const ProductArchive = () => {
   const { user } = useStateContext();
   const [rows, setRows] = useState([]);
   const columns = [
@@ -12,24 +13,20 @@ const Employee = () => {
       key: "business_name",
     },
     {
-      name: "Full name",
-      key: "full_name",
+      name: "Product name",
+      key: "product_name",
     },
     {
-      name: "Email",
-      key: "email",
+      name: "Price",
+      key: "price",
     },
     {
-      name: "Position",
-      key: "position",
+      name: "Quantity",
+      key: "quantity",
     },
     {
       name: "Image",
       key: "image",
-    },
-    {
-      name: "Status",
-      key: "status",
     },
   ];
 
@@ -37,23 +34,24 @@ const Employee = () => {
     try {
       let response;
       if (business_id > 0) {
-        response = await axiosClient.post("/employee/index", {
-          user_id: user.id,
+        response = await axiosClient.post("/product/archive", {
+          user_id: user.user_id,
           business_id: business_id,
-          full_name: search,
+          product_name: search,
         });
       } else {
         if (user.position === "manager") {
-          response = await axiosClient.post("/employee/index", {
+          response = await axiosClient.post("/product/archive", {
             user_id: user.user_id,
             full_name: search,
             business_id: user.business_id,
-            position: "teller",
+            position: "manager",
+            product_name: search,
           });
         } else {
-          response = await axiosClient.post("/employee/index", {
+          response = await axiosClient.post("/product/archive", {
             user_id: user.user_id,
-            full_name: search,
+            product_name: search,
           });
         }
       }
@@ -69,22 +67,22 @@ const Employee = () => {
 
   useEffect(() => {
     fetchData();
-    document.title = "Employee - Muibu";
+    document.title = "Product Archive - Muibu";
   }, []);
 
   return (
     <div className="p-6">
-      <h1 className="text-gray-700 text-2xl font-semibold mb-4">Employee</h1>
+      <h1 className="text-gray-700 text-2xl font-semibold mb-4">Product Archive</h1>
       <Table
         columns={columns}
         rows={rows}
-        url={"/employee"}
+        url={"/product"}
         fetchData={fetchData}
         type={true}
-        archive={false}
+        archive={true}
       />
     </div>
   );
 };
 
-export default Employee;
+export default ProductArchive;

@@ -58,7 +58,6 @@ const BusinessForm = () => {
         const payLoad = new FormData();
         payLoad.append("business_name", businessName.current.value);
         payLoad.append("id", businessID);
-        payLoad.append("user_id", user.id);
         if (imageFile) {
           payLoad.append("image", imageFile);
         }
@@ -107,10 +106,10 @@ const BusinessForm = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (realIDd) => {
     try {
       const response = await axiosClient.post("/business/find", {
-        id: id,
+        id: realIDd,
       });
 
       if (response.data.message) {
@@ -118,6 +117,8 @@ const BusinessForm = () => {
         setBusinessID(response.data.data.id);
         setImagePreview(response.data.data.image);
         setImageFile(response.data.data.image);
+      } else {
+        navigate("*");
       }
     } catch (error) {
       console.log(error);
@@ -127,7 +128,19 @@ const BusinessForm = () => {
 
   useEffect(() => {
     if (id) {
-      fetchData();
+      try {
+        const decode = atob(id);
+        const [code, realID] = decode.split("|");
+
+        if (!realID) {
+          throw new Error("Decoded ID is missing");
+        }
+
+        fetchData(realID);
+      } catch (error) {
+        console.error("Invalid ID:", error);
+        navigate("*"); // Redirect to 404 or catch-all route
+      }
     }
   }, [id]);
 
@@ -159,7 +172,9 @@ const BusinessForm = () => {
             autoComplete="off"
             onChange={() => handleChangeInput(businessName)}
             className={`w-full border px-4 py-2 rounded-md  focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.business_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.business_name
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors.business_name && (
@@ -177,7 +192,9 @@ const BusinessForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors?.image
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -221,7 +238,7 @@ const BusinessForm = () => {
             type="submit"
             disabled={loading}
             className={`text-white px-5 py-2 rounded transition ${
-              loading ? 'bg-blue-500' : 'bg-blue-500 hover:bg-blue-600'
+              loading ? "bg-blue-500" : "bg-blue-500 hover:bg-blue-600"
             }`}
           >
             Save

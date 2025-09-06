@@ -17,6 +17,9 @@ import ForgetPassword from '../pages/default/ForgetPassword';
 import MyAccount from '../pages/main/MyAccount';
 import Home from '../pages/default/Home';
 import AttendanceList from '../pages/main/AttendanceList';
+import EmployeeArchive from '../pages/main/EmployeeArchive';
+import ProductArchive from '../pages/main/ProductArchive';
+import Sales from '../pages/main/Sales';
 
 const router = createBrowserRouter([
   {
@@ -62,20 +65,32 @@ const router = createBrowserRouter([
         element: <BusinessForm />
       }, 
       {
-        path: '/product',
+        path: '/products',
         element: <Product />
+      },
+            {
+        path: '/product/archives',
+        element: <ProductArchive />
       },
       {
         path: '/product/form/:id?',
         element: <ProductForm />
       },
       {
-        path: '/employee',
+        path: '/employees',
         element: <Employee />
+      },
+      {
+        path: '/employee/archives',
+        element: <EmployeeArchive />
       },
       {
         path: '/employee/form/:id?',
         element: <EmployeeForm />
+      },
+      {
+        path: '/sales',
+        element: <Sales />
       },
       {
         path: '/my-account',

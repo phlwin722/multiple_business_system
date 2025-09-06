@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('price',10,2)->nullable();
             $table->integer('quantity')->nullable();
             $table->string('image')->nullable();
+            $table->enum("status", ['Activate', 'Deactivate'])->default('Activate')->nullable();
             $table->foreignId('business_id')
                     ->constrained('businesses', 'id')
                     ->onUpdate('cascade')

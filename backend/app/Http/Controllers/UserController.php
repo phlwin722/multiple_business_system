@@ -57,7 +57,7 @@ public function register(SignUpRequest $signUpRequest)
                 'updated_at' => now(),
             ]);
 
-            if ($user->position != 'admin') {
+            if ($user->position != 'Admin') {
                 Attendance::create([
                     'user_id' => $user->user_id,
                     'id_user_create' => $user->id,
@@ -102,7 +102,7 @@ public function register(SignUpRequest $signUpRequest)
 
             $user->currentAccessToken()->delete();
 
-            if ($user->position != 'admin') {
+            if ($user->position != 'Admin') {
                 $latest = Attendance::where('id_user_create', $request->id)
                     ->whereNull('time_out')
                     ->orderByDesc('time_in')

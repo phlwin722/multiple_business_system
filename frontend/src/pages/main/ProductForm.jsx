@@ -9,6 +9,7 @@ import toastify from "../../components/toastify";
 
 const ProductForm = () => {
   const { id } = useParams();
+
   const navigate = useNavigate();
   const { user } = useStateContext();
 
@@ -127,10 +128,10 @@ const ProductForm = () => {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (realIDd) => {
     try {
       const response = await axiosClient.post("/product/find", {
-        id: id,
+        id: realIDd,
       });
 
       if (response.data.message) {
@@ -141,6 +142,8 @@ const ProductForm = () => {
         setImagePreview(response.data.data.image);
         setImageFile(response.data.data.image);
         setProductID(response.data.data.id);
+      } else {
+        navigate("*");
       }
     } catch (error) {
       console.log(error);
@@ -149,7 +152,19 @@ const ProductForm = () => {
 
   useEffect(() => {
     if (id) {
-      fetchData();
+      try {
+        const decode = atob(id);
+        const [code, realID] = decode.split("|");
+
+        if (!realID) {
+          throw new Error("Decoded ID is missing");
+        }
+
+        fetchData(realID);
+      } catch (error) {
+        console.error("Invalid ID:", error);
+        navigate("*"); // Redirect to 404 or catch-all route
+      }
     }
     fetchBusinesses();
 
@@ -177,7 +192,9 @@ const ProductForm = () => {
             ref={product_name}
             onChange={() => handleChangeInput(product_name)}
             className={`border border-gray-300 rounded-md  block w-full px-4 py-2 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.product_name ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.product_name
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.product_name && (
@@ -196,7 +213,9 @@ const ProductForm = () => {
             id="price"
             ref={price}
             className={`border rounded-md border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.price ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.price
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.price && (
@@ -205,7 +224,10 @@ const ProductForm = () => {
         </div>
 
         <div>
-          <label htmlFor="quantity" className="rounded-md font-medium text-gray-800">
+          <label
+            htmlFor="quantity"
+            className="rounded-md font-medium text-gray-800"
+          >
             Quantity
           </label>
           <input
@@ -213,7 +235,9 @@ const ProductForm = () => {
             id="quantity"
             ref={quantity}
             className={`border border-gray-300 block py-2 px-4 w-full rounded focus:ring-2 focus:ring-blue-500 focus:outline-none mt-1 ${
-              errors.quantity ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.quantity
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           />
           {errors?.quantity && (
@@ -230,7 +254,9 @@ const ProductForm = () => {
           <select
             ref={business}
             className={`block border mt-1 border-gray-300 rounded-md  focus:ring-2 focus:ring-blue-500 focus:outline-none w-full py-2 px-4 ${
-              errors.business_id ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors.business_id
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
           >
             {listBusiness.length > 0 ? (
@@ -259,7 +285,9 @@ const ProductForm = () => {
 
           <div
             className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none" : "border-gray-300"
+              errors?.image
+                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
+                : "border-gray-300"
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -304,7 +332,7 @@ const ProductForm = () => {
               type="submit"
               disabled={loading}
               className={`text-white px-5 py-2 rounded transition ${
-                loading ? 'bg-blue-400' : 'bg-blue-500 hover:bg-blue-600'
+                loading ? "bg-blue-400" : "bg-blue-500 hover:bg-blue-600"
               }`}
             >
               Save

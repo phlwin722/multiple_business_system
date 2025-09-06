@@ -17,12 +17,10 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('payment_mode');
             $table->foreignId('product_id')
-                ->nullable()
                 ->constrained('products', 'id')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
             $table->foreignId('business_id')
-                ->nullable()
                 ->constrained('businesses', 'id')
                 ->onDelete('cascade')
                 ->onUpdate('cascade'); 

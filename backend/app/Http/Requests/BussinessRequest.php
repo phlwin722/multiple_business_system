@@ -28,7 +28,7 @@ class BussinessRequest extends FormRequest
                 Rule::unique('businesses', 'business_name')->ignore($id)
             ],
             'image' => 'required',
-            'user_id' => 'required',
+            'user_id' => $id ? "" : "required",
         ];
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { MdDelete } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
@@ -7,16 +7,22 @@ import { useStateContext } from "../contexts/ContextProvider";
 import toastify from "./toastify";
 import { CiSearch } from "react-icons/ci";
 import { MdOutlineBusiness } from "react-icons/md";
+import { FaTrashRestore } from "react-icons/fa";
 
-const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
+const Table = ({ columns = [], rows = [], url, fetchData, type, archive }) => {
   const navigate = useNavigate();
   const { user } = useStateContext();
 
+  const [message, setMessage] = useState("");
+  const [confirmation, setConfirmation] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [messageBtn, setMessageBtn] = useState(null);
+  const [backgroundBtn, setBackgroundBtn] = useState(null);
   const [listBusiness, setListBusiness] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [selectedBusinessId, setSelectedBusinessId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -37,7 +43,24 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
   const isSelected = (id) => selectedRows.includes(id);
 
   const openDeleteModal = (id = null) => {
-    setDeletingId(id); // set  to null or bulk id for single
+    setDeletingId(id);
+    setMessageBtn("Delete");
+    setBackgroundBtn("bg-red-500 hover:bg-red-600");
+    setConfirmation("Delete Confirmation");
+    setMessage(
+      "Are you sure you want to delete this item? This action cannot be undone."
+    );
+    setIsModalOpen(true);
+  };
+
+  const openRestoreModal = (id = null) => {
+    setDeletingId(id);
+    setMessageBtn("Restore");
+    setBackgroundBtn("bg-green-500 hover:bg-green-600");
+    setConfirmation("Restore Confirmation");
+    setMessage(
+      "Are you sure you want to restore this item? This action cannot be undone."
+    );
     setIsModalOpen(true);
   };
 
@@ -49,13 +72,54 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
       });
 
       if (response.data.message) {
+        toastify("success", "Deleted successfully");
+        setMessageBtn("");
+        setBackgroundBtn("");
+        setMessageBtn("");
+        setConfirmation("");
         setIsModalOpen(false);
         setDeletingId(null);
         setSelectedRows([]);
         fetchData();
       }
     } catch (error) {
+      if (error.response.status === 400) {
+        setMessageBtn("");
+        setBackgroundBtn("");
+        setMessageBtn("");
+        setConfirmation("");
+        setIsModalOpen(false);
+        setDeletingId(null);
+        setSelectedRows([]);
+        toastify("error", "Cannot delete businesses with related data.");
+      }
       console.log(error);
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      const idsToRestore = deletingId ? [deletingId] : selectedRows;
+      const response = await axiosClient.post(`${url}/restore`, {
+        ids: idsToRestore,
+      });
+
+      if (response.data.message) {
+        toastify("success", "Restored successfully");
+        setMessageBtn("");
+        setBackgroundBtn("");
+        setMessageBtn("");
+        setConfirmation("");
+        setIsModalOpen(false);
+        setDeletingId(null);
+        setSelectedRows([]);
+        fetchData();
+      }
+    } catch (error) {
+      setIsModalOpen(false);
+      setDeletingId(null);
+      setSelectedRows([]);
+      fetchData();
     }
   };
 
@@ -77,6 +141,17 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     } else {
       navigate(`${url}/form`);
     }
+  };
+
+  const handleEditForm = async (id) => {
+    const generateCodeWithID = (id) => {
+      const random = Math.random().toString(36).substring(2, 8); // 6-char random
+      const combined = `${random}|${id}`;
+      return btoa(combined); // Base64 encode
+    };
+
+    const code = generateCodeWithID(id); // Result: "d0hkeXw1"
+    navigate(`${url}/form/${code}`);
   };
 
   useEffect(() => {
@@ -114,12 +189,18 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
     <div>
       <Modal
         isOpen={isModalOpen}
-        title="Delete Confirmation"
-        backgroundBtn="bg-red-500 hover:bg-red-600"
-        messageBtn="Delete"
-        message="Are you sure you want to delete this item? This action cannot be undone."
+        title={confirmation}
+        backgroundBtn={backgroundBtn}
+        messageBtn={messageBtn}
+        message={message}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={handleDelete}
+        onConfirm={() => {
+          if (messageBtn === "Delete") {
+            handleDelete();
+          } else if (messageBtn === "Restore") {
+            handleRestore();
+          }
+        }}
       />
 
       <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex flex-col sm:flex-row sm:justify-between gap-4 sm:items-center">
@@ -175,14 +256,16 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
         </div>
 
         {/* Add Button */}
-        <div className="w-full sm:w-auto">
-          <button
-            onClick={handleAddForm}
-            className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition"
-          >
-            Add
-          </button>
-        </div>
+        {!archive && (
+          <div className="w-full sm:w-auto">
+            <button
+              onClick={handleAddForm}
+              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 rounded-lg py-2 px-4 text-white transition"
+            >
+              Add
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
@@ -195,10 +278,23 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
             </span>
             <button
               onClick={() => openDeleteModal(null)}
-              className="flex items-center cursor-pointer gap-1 text-red-600 hover:text-red-800 transition"
+              className={`flex items-center cursor-pointer gap-1 transition. ${
+                archive
+                  ? "text-green-500 hover:text-green-600"
+                  : "text-red-500 hover:text-red-600"
+              }`}
             >
-              <MdDelete size={18} />
-              Delete
+              {archive ? (
+                <>
+                  <FaTrashRestore size={18} />
+                  Restore
+                </>
+              ) : (
+                <>
+                  <MdDelete size={18} />
+                  Delete
+                </>
+              )}
             </button>
           </div>
         )}
@@ -224,7 +320,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                 paginatedRows.map((row) => (
                   <tr
                     key={row.id}
-                    className={`transition hover:bg-gray-50 ${
+                    className={`transition hover:bg-blue-100 ${
                       isSelected(row.id) ? "bg-blue-50" : "bg-white"
                     }`}
                   >
@@ -258,18 +354,29 @@ const Table = ({ columns = [], rows = [], url, fetchData, type }) => {
                       </td>
                     ))}
                     <td className="px-4 py-3 space-x-2">
-                      <button
-                        onClick={() => navigate(`${url}/form/${row.id}`)}
-                        className=" cursor-pointer px-3 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(row.id)}
-                        className=" cursor-pointer px-3 py-1 text-xs rounded bg-red-500 text-white hover:bg-red-600 transition"
-                      >
-                        Delete
-                      </button>
+                      {!archive ? (
+                        <>
+                          <button
+                            onClick={() => handleEditForm(row.id)}
+                            className=" cursor-pointer px-3 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 transition"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(row.id)}
+                            className=" cursor-pointer px-3 py-1 text-xs rounded bg-red-500 text-white hover:bg-red-600 transition"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className=" cursor-pointer px-3 py-1 text-xs rounded bg-green-500 text-white hover:bg-green-600 transition"
+                          onClick={() => openRestoreModal(row.id)}
+                        >
+                          Restore
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
