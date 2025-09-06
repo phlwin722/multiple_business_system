@@ -5,6 +5,8 @@ import { FaTrashAlt } from "react-icons/fa";
 import toastify from "../../components/toastify";
 import Modal from "../../components/Modal";
 import PlaceholderLoadingTeller from "../../components/PlaceholderLoadingTeller";
+import { FaWallet } from "react-icons/fa";
+import { BsCashCoin } from "react-icons/bs";
 
 const Teller = () => {
   const urlProduct = "/product";
@@ -104,6 +106,7 @@ const Teller = () => {
       });
       toastify("success", "Order submitted!");
       handleClearOrder();
+      setPaymentMode(null)
       setCartOrder(false);
       setIsModalOpen(false);
       fetchData();
@@ -193,38 +196,42 @@ const Teller = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-6 pb-5">
                 {product.map((products) => (
                   <div
-                    className="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-3"
+                    className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-between space-y-3"
                     key={products.id}
                   >
-                    <img
-                      className="h-40 w-full object-cover rounded"
-                      src={products.image}
-                      alt={products.product_name}
-                    />
-                    <div className="text-gray-800 font-semibold">
-                      {products.product_name}
+                    <div>
+                      <img
+                        className="h-40 w-full object-cover rounded"
+                        src={products.image}
+                        alt={products.product_name}
+                      />
+                      <div className="text-gray-800 font-semibold">
+                        {products.product_name}
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        Price: ₱{products.price}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Stock: {products.quantity}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Price: ₱{products.price}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Stock: {products.quantity}
-                    </p>
-                    {products.quantity > 0 ? (
-                      <button
-                        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-                        onClick={() => handleAddToCart(products)}
-                      >
-                        Add to order
-                      </button>
-                    ) : (
-                      <button
-                        disabled
-                        className="cursor-not-allowed bg-gray-500 text-white py-2 px-4 rounded"
-                      >
-                        Out of stock
-                      </button>
-                    )}
+                    <div className="w-full">
+                      {products.quantity > 0 ? (
+                        <button
+                          className="bg-blue-500 w-full text-white py-2 px-4 rounded hover:bg-blue-600"
+                          onClick={() => handleAddToCart(products)}
+                        >
+                          Add to order
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="cursor-not-allowed w-full bg-gray-500 text-white py-2 px-4 rounded"
+                        >
+                          Out of stock
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -314,7 +321,10 @@ const Teller = () => {
                             : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                         }`}
                       >
-                        Cash
+                        <div className="flex gap-2 text-center">
+                          <BsCashCoin size={19} />
+                          Cash
+                        </div> 
                       </button>
                       <button
                         onClick={() => setPaymentMode("E-Wallet")}
@@ -324,7 +334,10 @@ const Teller = () => {
                             : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                         }`}
                       >
-                        E-wallet
+                        <div className="flex gap-2 text-center">
+                          <FaWallet size={19} />
+                          E-wallet
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -373,23 +386,29 @@ const Teller = () => {
                       <div className="flex w-full items-center justify-center gap-3 mt-1">
                         <button
                           onClick={() => setPaymentMode("Cash")}
-                          className={`rounded-md py-2 w-full px-4 font-medium ${
+                          className={`rounded-md py-2 w-full px-4 font-medium text-center ${
                             paymentMode === "Cash"
                               ? "bg-blue-500 text-white shadow-md"
                               : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                           }`}
                         >
-                          Cash
+                          <div className="flex gap-2">
+                            <BsCashCoin size={19} />
+                            Cash
+                          </div>
                         </button>
                         <button
                           onClick={() => setPaymentMode("E-Wallet")}
-                          className={`rounded-md w-full py-2 px-4 font-medium ${
+                          className={`rounded-md text-center w-full py-2 px-4 font-medium ${
                             paymentMode === "E-Wallet"
                               ? "bg-blue-500 text-white shadow-md"
                               : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                           }`}
                         >
-                          E-wallet
+                          <div className="flex gap-2">
+                            <FaWallet size={19} />
+                            E-wallet
+                          </div>
                         </button>
                       </div>
                     </div>
@@ -635,23 +654,29 @@ const Teller = () => {
                     <div className="flex w-full items-center justify-center gap-3 mt-1">
                       <button
                         onClick={() => setPaymentMode("Cash")}
-                        className={`rounded-md py-2 w-full px-4 font-medium ${
+                        className={`rounded-md py-2 w-full px-4 font-medium text-center ${
                           paymentMode === "Cash"
                             ? "bg-blue-500 text-white shadow-md"
                             : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                         }`}
                       >
-                        Cash
+                        <div className="flex gap-2">
+                          <BsCashCoin size={19} />
+                          Cash
+                        </div>
                       </button>
                       <button
                         onClick={() => setPaymentMode("E-Wallet")}
-                        className={`rounded-md w-full py-2 px-4 font-medium ${
+                        className={`rounded-md w-full py-2 px-4 font-medium text-center ${
                           paymentMode === "E-Wallet"
                             ? "bg-blue-500 text-white shadow-md"
                             : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                         }`}
                       >
-                        E-wallet
+                        <div className="flex gap-2">
+                          <FaWallet size={19} />
+                          E-wallet
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -706,7 +731,10 @@ const Teller = () => {
                               : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                           }`}
                         >
-                          Cash
+                          <div className="flex gap-2">
+                            <BsCashCoin size={19} />
+                            Cash
+                          </div>
                         </button>
                         <button
                           onClick={() => setPaymentMode("E-Wallet")}
@@ -716,7 +744,10 @@ const Teller = () => {
                               : "bg-gray-300 text-gray-700 hover:bg-gray-400 hover:text-black"
                           }`}
                         >
-                          E-wallet
+                          <div className="flex gap-2">
+                            <FaWallet size={19} />
+                            E-wallet
+                          </div>
                         </button>
                       </div>
                     </div>

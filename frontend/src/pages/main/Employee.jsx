@@ -43,7 +43,7 @@ const Employee = () => {
           full_name: search,
         });
       } else {
-        if (user.position === "manager") {
+        if (user.position === "Manager") {
           response = await axiosClient.post("/employee/index", {
             user_id: user.user_id,
             full_name: search,

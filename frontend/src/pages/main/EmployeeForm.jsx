@@ -88,7 +88,7 @@ const EmployeeForm = () => {
 
         if (response.data.message) {
           toastify("success", "Updated successfully!");
-          navigate("/employee");
+          navigate("/employees");
         }
       } else {
         formData.append("statuss", "Activate");
@@ -100,7 +100,7 @@ const EmployeeForm = () => {
 
         if (response.data.message) {
           toastify("success", "Created successfully!");
-          navigate("/employee");
+          navigate("/employees");
         }
       }
     } catch (error) {
@@ -172,7 +172,7 @@ const EmployeeForm = () => {
     }
     fetchBusinesses();
 
-    document.title = "Employee Form = Muibu";
+    document.title = "Employee Form - Muibu";
   }, []);
 
   return (
@@ -336,17 +336,15 @@ const EmployeeForm = () => {
           <label className="block font-medium text-gray-700 mb-2">Image</label>
 
           <div
-            className={`w-[200px] h-[250px] border border-gray-300 p-1 rounded-md overflow-hidden cursor-pointer hover:opacity-80 transition ${
-              errors?.image
-                ? "border-red-500 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-none"
-                : "border-gray-300"
-            }`}
+            className={`cursor-pointer border p-3 ${
+              errors?.image ? "border-red-500" : "border-gray-300"
+            } w-full max-w-md md:max-w-[330px] md:h-72 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out hover:opacity-90 mt-2`}
             onClick={() => fileInputRef.current.click()}
           >
             <img
               src={imagePreview || noImage}
               alt="Click to upload"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-fit"
             />
           </div>
 

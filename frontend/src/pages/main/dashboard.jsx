@@ -48,7 +48,14 @@ const dashboard = () => {
 
   const fetchSales = async () => {
     try {
-      const response = await axiosClient.get(`${URL}/sales/${user.user_id}`);
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(`${URL}/sales/${user.user_id}`, {
+          business_id: user.business_id,
+        });
+      } else {
+        response = await axiosClient.post(`${URL}/sales/${user.user_id}`);
+      }
 
       if (response.data.data != 0) {
         setCountSales(response.data.data);
@@ -60,7 +67,14 @@ const dashboard = () => {
 
   const fetchEmployee = async () => {
     try {
-      const response = await axiosClient.get(`${URL}/employee/${user.user_id}`);
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(`${URL}/employee/${user.user_id}`, {
+          business_id: user.business_id,
+        });
+      } else {
+        response = await axiosClient.post(`${URL}/employee/${user.user_id}`);
+      }
 
       if (response.data.data != 0) {
         setCountEmployee(response.data.data);
@@ -72,7 +86,14 @@ const dashboard = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await axiosClient.get(`${URL}/products/${user.user_id}`);
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(`${URL}/products/${user.user_id}`, {
+          business_id: user.business_id,
+        });
+      } else {
+        response = await axiosClient.post(`${URL}/products/${user.user_id}`);
+      }
 
       if (response.data.data != 0) {
         setCountProduct(response.data.data);
@@ -84,7 +105,14 @@ const dashboard = () => {
 
   const fetchBusiness = async () => {
     try {
-      const response = await axiosClient.get(`${URL}/business/${user.user_id}`);
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(`${URL}/business/${user.user_id}`, {
+          business_id: user.business_id,
+        });
+      } else {
+        response = await axiosClient.post(`${URL}/business/${user.user_id}`);
+      }
 
       if (response.data.data != 0) {
         setCountBusiness(response.data.data);
@@ -96,9 +124,19 @@ const dashboard = () => {
 
   const fetchProductList = async () => {
     try {
-      const response = await axiosClient.get(
-        `${URL}/product-list/${user.user_id}`
-      );
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(
+          `${URL}/product-list/${user.user_id}`,
+          {
+            business_id: user.business_id,
+          }
+        );
+      } else {
+        response = await axiosClient.post(
+          `${URL}/product-list/${user.user_id}`
+        );
+      }
 
       if (response.data.data) {
         setRowsProduct(response.data.data);
@@ -110,9 +148,19 @@ const dashboard = () => {
 
   const fetchOutOfStock = async () => {
     try {
-      const response = await axiosClient.get(
-        `${URL}/product-out-of-stock/${user.user_id}`
-      );
+      let response;
+      if (user.position == "Manager") {
+        response = await axiosClient.post(
+          `${URL}/product-out-of-stock/${user.user_id}`,
+          {
+            business_id: user.business_id,
+          }
+        );
+      } else {
+        response = await axiosClient.post(
+          `${URL}/product-out-of-stock/${user.user_id}`
+        );
+      }
 
       if (response.data.data) {
         setOutOfStocks(response.data.data);
@@ -129,7 +177,7 @@ const dashboard = () => {
     fetchSales();
     fetchProductList();
     fetchOutOfStock();
-    document.title = "Dashboard - Muibu"
+    document.title = "Dashboard - Muibu";
   }, []);
   return (
     <div className="p-6">
@@ -137,59 +185,49 @@ const dashboard = () => {
         Dashboard
       </h1>
 
-      <div className="flex grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-5 bg-red-500 rounded-md flex justify-between">
-          <div className="flex flex-col">
-            <h1 className="text-white text-2xl font-bold">{countBusiness}</h1>
-            <p className="text-white font-medium">Businesses</p>
+       <div
+      className={`grid grid-cols-2 gap-4 sm:grid-cols-2 md:${
+        user.position === "Manager" ? "grid-cols-3" : "grid-cols-4"
+      }`}
+    >
+      {/* Conditionally render Businesses card if not Manager */}
+      {user.position !== "Manager" && (
+        <div className="p-5 bg-red-500 rounded-md flex items-center justify-between gap-4 min-w-0">
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-white text-2xl font-bold truncate">{countBusiness}</h1>
+            <p className="text-white font-medium truncate">Businesses</p>
           </div>
-          <div>
-            <MdOutlineBusiness
-              size={40}
-              className="text-white flex items-center justify-center"
-            />
-          </div>
+          <MdOutlineBusiness size={40} className="text-white flex-shrink-0" />
         </div>
+      )}
 
-        <div className="p-5 rounded-md flex justify-between bg-blue-500">
-          <div className="flex flex-col">
-            <h1 className="text-white text-2xl font-bold">{countEmployee}</h1>
-            <p className="text-white font-medium">Employees</p>
-          </div>
-          <div>
-            <IoPeople
-              size={40}
-              className="text-white flex items-center justify-center"
-            />
-          </div>
+      {/* Employees Card */}
+      <div className="p-5 bg-blue-500 rounded-md flex items-center justify-between gap-4 min-w-0">
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-white text-2xl font-bold truncate">{countEmployee}</h1>
+          <p className="text-white font-medium truncate">Employees</p>
         </div>
-
-        <div className="p-5 rounded-md bg-green-500 flex justify-between">
-          <div className="flex flex-col">
-            <h1 className="text-white text-2xl font-bold">{countProduct}</h1>
-            <p className="text-white font-medium">Products</p>
-          </div>
-          <div>
-            <FaBoxOpen
-              size={40}
-              className="text-white flex items-center justify-center"
-            />
-          </div>
-        </div>
-
-        <div className="p-5 flex justify-between rounded-md bg-yellow-500">
-          <div className="flex flex-col">
-            <h1 className="text-white text-2xl font-bold mr-5">{countSales}</h1>
-            <p className="text-white font-medium">Sales</p>
-          </div>
-          <div>
-            <TbCurrencyPeso
-              size={40}
-              className="text-white flex items-center justify-center"
-            />
-          </div>
-        </div>
+        <IoPeople size={40} className="text-white flex-shrink-0" />
       </div>
+
+      {/* Products Card */}
+      <div className="p-5 bg-green-500 rounded-md flex items-center justify-between gap-4 min-w-0">
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-white text-2xl font-bold truncate">{countProduct}</h1>
+          <p className="text-white font-medium truncate">Products</p>
+        </div>
+        <FaBoxOpen size={40} className="text-white flex-shrink-0" />
+      </div>
+
+      {/* Sales Card */}
+      <div className="p-5 bg-yellow-500 rounded-md flex items-center justify-between gap-4 min-w-0">
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-white text-2xl font-bold truncate">{countSales}</h1>
+          <p className="text-white font-medium truncate">Sales</p>
+        </div>
+        <TbCurrencyPeso size={40} className="text-white flex-shrink-0" />
+      </div>
+    </div>
 
       <div className="grid md:grid-cols-3 gap-5 mt-4">
         <div className=" bg-white md:col-span-2 rounded-md p-4 shadow-md h-[350px] md:h-[450px] border border-gray-200 overflow-auto">
@@ -197,7 +235,9 @@ const dashboard = () => {
         </div>
 
         <div className="rounded-md bg-white h-[400px] md:h-[450px] p-4 shadow-md border border-gray-200 overflow-hidden">
-          <h3 className="text-lg font-semibold mb-2 text-gray-700 ">Calendar</h3>
+          <h3 className="text-lg font-semibold mb-2 text-gray-700 ">
+            Calendar
+          </h3>
           <div className="hidden md:block">
             <FullCalendar
               plugins={[dayGridPlugin]}
@@ -222,9 +262,14 @@ const dashboard = () => {
         </div>
 
         <div className="overflow-x-auto rounded-md h-[350px] bg-white  md:h-[350px]  p-4 shadow-md border border-gray-200">
-          <h3 className="text-lg font-semibold mb-2 text-gray-700 ">Out of stocks</h3>
+          <h3 className="text-lg font-semibold mb-2 text-gray-700 ">
+            Out of stocks
+          </h3>
           <div className="overflow-x-auto">
-            <TableDashboard rows={rowsOutOfStocks} columns={columnOutOfStocks} />
+            <TableDashboard
+              rows={rowsOutOfStocks}
+              columns={columnOutOfStocks}
+            />
           </div>
         </div>
       </div>

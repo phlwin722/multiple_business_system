@@ -12,7 +12,7 @@ const AttendanceList = () => {
 
   const [listBusiness, setListBusiness] = useState([]);
   const [listAttendance, setListAttendance] = useState([]);
-  const [selectedBusinessId, setSelectedBusinessId] = useState("");
+  const [selectedBusinessId, setSelectedBusinessId] = useState(null);
   const [selectCalendar, setSelectCalendar] = useState("weekly");
 
   const [startDate, setStartDate] = useState("");
@@ -27,9 +27,10 @@ const AttendanceList = () => {
       });
 
       if (response.data.data) {
+        const firstBusinessId = response.data.data[0].id.toString();
         setListBusiness(response.data.data);
-
-        setSelectedBusinessId(response.data.data[0].id.toString());
+        setSelectedBusinessId(firstBusinessId);
+        return firstBusinessId; // Return it for use
       }
     } catch (error) {
       console.log(error);
@@ -38,27 +39,23 @@ const AttendanceList = () => {
 
   const UserSummaryTable = async () => {
     try {
-      let response;
+      const payload = new FormData();
 
-      const payload = {
-        user_id: user.user_id,
-        calendar: selectCalendar,
-      };
+      payload.append("user_id", user.user_id);
+      payload.append("calendar", selectCalendar);
 
-      if (selectedBusinessId) {
-        payload.business_id = selectedBusinessId;
+      if (user.position === "Manager") {
+        payload.append("business_id", user.business_id);
+      } else {
+        payload.append("business_id", selectedBusinessId);
       }
 
       if (selectCalendar === "custom") {
-        payload.start_date = startDate;
-        payload.end_date = endDate;
+        payload.append("start_date", startDate);
+        payload.append("end_date", endDate);
       }
 
-      if (user.position === "manager") {
-        payload.business_id = user.business_id;
-      }
-
-      response = await axiosClient.post("/attendance/index", payload);
+      const response = await axiosClient.post("/attendance/index", payload);
 
       if (response.data) {
         setListAttendance(response.data);
@@ -125,6 +122,7 @@ const AttendanceList = () => {
   // jsPDF generation function
   // jsPDF generation function
   const generatePDF = async (attendanceData, businessName, logoBase64) => {
+    const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -180,6 +178,12 @@ const AttendanceList = () => {
 
     doc.setFontSize(9);
     doc.text("Generated on: " + new Date().toLocaleString(), 14, 47);
+    if (selectCalendar === "custom" && startDate && endDate) {
+      doc.text(`Date Range: ${startDate} to ${endDate}`, 14, 61);
+    } else {
+      console.log("selectCalendar in PDF:", selectCalendar);
+      doc.text("Calendar Type: " + capitalize(selectCalendar), 14, 80);
+    }
 
     const columns = [
       { header: "Business Name", dataKey: "business_name" },
@@ -227,9 +231,8 @@ const AttendanceList = () => {
         alert("Please select a business.");
         return;
       }
-
       // Convert logo image to base64 (from API full URL)
-      const logoUrl = business.image.replace("http://127.0.0.1:8000", "");
+      const logoUrl = business.image; // full URL with 127.0.0.1:8000
       const logoBase64 = await toBase64FromUrl(logoUrl);
 
       // Generate PDF with current attendance data and business info
@@ -241,20 +244,21 @@ const AttendanceList = () => {
   };
 
   useEffect(() => {
-    fetchBusiness();
-    UserSummaryTable();
+    const init = async () => {
+      await fetchBusiness();
+    };
+
+    init();
     document.title = "Attendance - Muibu";
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page
     if (selectCalendar !== "custom") {
       UserSummaryTable();
     }
   }, [selectCalendar, selectedBusinessId]);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page
     if (selectCalendar === "custom" && startDate && endDate) {
       UserSummaryTable();
     }
@@ -270,31 +274,33 @@ const AttendanceList = () => {
           className={`flex flex-col sm:flex-row  items-start lg:items-center gap-4 lg:gap-7 w-full`}
         >
           {/* Business Selector */}
-          <div
-            className={`relative w-full sm:w-52 ${
-              user.position === "manager" ? "hidden" : ""
-            }`}
-          >
-            <MdOutlineBusiness className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none" />
-            <select
-              value={selectedBusinessId}
-              onChange={(e) => setSelectedBusinessId(e.target.value)}
-              className="peer block w-full border border-gray-300 bg-white p-2 pt-4 pl-10 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-            >
-              {listBusiness.map((businesses) => (
-                <option key={businesses.id} value={businesses.id}>
-                  {businesses.business_name}
-                </option>
-              ))}
-            </select>
-            <label
-              className={`absolute left-10 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
-                selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""
+          {user.position != "Manager" && (
+            <div
+              className={`relative w-full sm:w-52 ${
+                user.position === "manager" ? "hidden" : ""
               }`}
             >
-              Select Business
-            </label>
-          </div>
+              <MdOutlineBusiness className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none" />
+              <select
+                value={selectedBusinessId}
+                onChange={(e) => setSelectedBusinessId(e.target.value)}
+                className="peer block w-full border border-gray-300 bg-white p-2 pt-4 pl-10 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              >
+                {listBusiness.map((businesses) => (
+                  <option key={businesses.id} value={businesses.id}>
+                    {businesses.business_name}
+                  </option>
+                ))}
+              </select>
+              <label
+                className={`absolute left-10 top-3 text-gray-500 transition-all pointer-events-none peer-focus:text-xs peer-focus:top-1 peer-focus:text-blue-600 ${
+                  selectedBusinessId ? "text-xs top-[4px] text-blue-600" : ""
+                }`}
+              >
+                Select Business
+              </label>
+            </div>
+          )}
 
           {/* Calendar Selector */}
           <div className="relative w-full sm:w-52">

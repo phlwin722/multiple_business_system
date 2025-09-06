@@ -26,7 +26,7 @@ class ProductRequest extends FormRequest
         return [
             'product_name' => [
                 "required",
-                "max:15",
+                "max:30",
                 Rule::unique('products', 'product_name')->ignore($id)
             ],
             'price' => 'required',

@@ -1,13 +1,15 @@
-import { ThreeDot } from "react-loading-indicators";
+import React from "react";
+import { BeatLoader } from "react-spinners";
 
-const Loading = () => {
+const loading = () => {
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.3)] z-[9999] flex items-center justify-center">    
-      <ThreeDot color="#e2e1e1" size="medium" text="Loading" textColor="" />
+    <div className="fixed inset-0 z-[99999] px-10 flex items-center justify-center bg-[rgba(0,0,0,0.3)]">
+      <div className="flex flex-col items-center">
+        <BeatLoader color="#fdfdfdff" size={12} />
+        <div className="mt-4 text-white text-sm">Loading...</div>
+      </div>
     </div>
-  )
+  );
 };
 
-export default Loading;
-
-/* https://github.com/hane-smitter/react-loading-indicator */
+export default loading;

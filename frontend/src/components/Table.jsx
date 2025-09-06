@@ -125,7 +125,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type, archive }) => {
 
   const handleAddForm = async () => {
     if (type) {
-      if (user.position != "manager") {
+      if (user.position != "Manager") {
         if (listBusiness.length == 0) {
           if (url === "/employee") {
             toastify("error", "Please create business to proceed add employee");
@@ -167,7 +167,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type, archive }) => {
     const fetchBusinesses = async () => {
       try {
         if (type) {
-          if (user.position != "manager") {
+          if (user.position != "Manager") {
             const response = await axiosClient.post(`${url}/fetchBusinesses`, {
               user_id: user.user_id,
             });
@@ -205,7 +205,7 @@ const Table = ({ columns = [], rows = [], url, fetchData, type, archive }) => {
 
       <div className="mb-5 bg-white rounded-lg shadow-md py-3 px-3 flex flex-col sm:flex-row sm:justify-between gap-4 sm:items-center">
         <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4">
-          {type && user.position != "manager" && (
+          {type && user.position != "Manager" && (
             <div className="relative w-full sm:w-52">
               <MdOutlineBusiness className="absolute left-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none" />
               <select

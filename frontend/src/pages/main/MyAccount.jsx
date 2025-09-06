@@ -264,12 +264,12 @@ const MyAccount = () => {
                 </div>
                 <div>
                   <label htmlFor="image" className="font-medium text-gray-800">
-                    Image
+                    Upload Image
                   </label>
                   <div
                     className={`cursor-pointer border p-3 ${
                       errors?.image ? "border-red-500" : "border-gray-300"
-                    } w-full max-w-md h-64 md:h-72 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out hover:opacity-90 mt-2`}
+                    } w-full max-w-md md:h-72 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition duration-300 ease-in-out hover:opacity-90 mt-2`}
                     onClick={() => fileInputRef.current.click()}
                   >
                     <img
