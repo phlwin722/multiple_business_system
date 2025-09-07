@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('order_quantity');
             $table->decimal('price', 10, 2);
-            $table->string('payment_mode');
+            $table->enum('payment_mode', ['Cash', 'E-Wallet'])->default("Cash")->nullable();
             $table->foreignId('product_id')
                 ->constrained('products', 'id')
                 ->onUpdate('cascade')
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('business_id')
                 ->constrained('businesses', 'id')
                 ->onDelete('cascade')
-                ->onUpdate('cascade'); 
+                ->onUpdate('cascade');
             $table->foreignId('user_id')
                 ->nullable()
                 ->constrained('users', 'id')

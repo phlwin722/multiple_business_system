@@ -10,12 +10,18 @@ use App\Models\User;
 
 class DashboardController extends Controller
 {
-    public function sales($id)
+    public function sales(Request $request, $id)
     {
         try {
-            $sale = Sale::where("user_id", $id)->get();
+            $sale = Sale::where("user_id", $id);
 
-            $totalSales = $sale->reduce(function ($carry, $sale) {
+            if ($request->has('business_id')) {
+                $sale->where('business_id', $request->business_id);
+            }
+
+            $sales = $sale->get();
+
+            $totalSales = $sales->reduce(function ($carry, $sale) {
                 return $carry + ($sale->order_quantity * $sale->price);
             });
 
@@ -31,16 +37,24 @@ class DashboardController extends Controller
         }
     }
 
-    public function employee($id)
+    public function employee(Request $request, $id)
     {
         try {
-            $user = User::where('user_id', $id)
-                ->where('position', '!=', 'Admin')
-                ->where("statuss", '!=', "Deactivate")
-                ->count();
 
+            $business_id = $request->input('business_id');
+
+            $query = User::where('user_id', $id)
+                ->where('position', '!=', 'Admin')
+                ->where('statuss', '!=', 'Deactivate');
+
+            if ($business_id) {
+                $query->where('business_id', $business_id)
+                    ->where("position", '!=', 'Manager');
+            }
+
+            $users =  $query->count();
             return response()->json([
-                'data' => $user
+                'data' => $users
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -49,15 +63,18 @@ class DashboardController extends Controller
         }
     }
 
-    public function products($id)
+    public function products(Request $request, $id)
     {
         try {
             $product = Product::where('user_id', $id)
-                ->where("status", '!=', "Deactivate")
-                ->count();
+                ->where("status", '!=', "Deactivate");
+            if ($request->has('business_id')) {
+                $product->where('business_id', $request->business_id);
+            }
+            $products = $product->count();
 
             return response()->json([
-                'data' => $product
+                'data' => $products
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -82,7 +99,7 @@ class DashboardController extends Controller
         }
     }
 
-    public function ProductList($id)
+    public function ProductList(Request $request, $id)
     {
         try {
             $product = Sale::select(
@@ -96,8 +113,13 @@ class DashboardController extends Controller
             )
                 ->join('products', 'sales.product_id', '=', 'products.id')
                 ->join('businesses', 'sales.business_id', '=', 'businesses.id')
-                ->where('sales.user_id', $id)
-                ->orderByRaw('CAST(sales.order_quantity AS UNSIGNED) DESC')
+                ->where('sales.user_id', $id);
+
+            if ($request->has('business_id')) {
+                $product->where('sales.business_id', $request->business_id);
+            }
+
+            $products = $product->orderByRaw('CAST(sales.order_quantity AS UNSIGNED) DESC')
                 ->get()
                 ->map(function ($product) {
                     return [
@@ -112,7 +134,7 @@ class DashboardController extends Controller
                 });
 
             return response()->json([
-                'data' => $product
+                'data' => $products
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -121,14 +143,18 @@ class DashboardController extends Controller
         }
     }
 
-    public function OutOfStock($id)
+    public function OutOfStock(Request $request, $id)
     {
         try {
             $query = Product::where('user_id', $id)
                 ->where('quantity', '=', '0');
-            $products = $query->with('business')
-                ->orderBy('updated_at', 'desc')
-                ->get()
+            $product = $query->with('business')
+                ->orderBy('updated_at', 'desc');
+            if ($request->has('business_id')) {
+                $product->where('business_id', $request->business_id);
+            }
+
+            $products = $product->get()
                 ->map(function ($product) {
                     return [
                         'id' => $product->id,

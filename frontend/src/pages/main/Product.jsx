@@ -40,7 +40,7 @@ const Product = () => {
           product_name: search,
         });
       } else {
-        if (user.position === "manager") {
+        if (user.position === "Manager") {
           response = await axiosClient.post("/product/index", {
             user_id: user.user_id,
             full_name: search,

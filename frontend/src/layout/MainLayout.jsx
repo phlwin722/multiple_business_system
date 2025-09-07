@@ -19,7 +19,7 @@ const MainLayout = () => {
     return <Navigate to="/signin" />;
   }
 
-  if (typePosition == "teller") {
+  if (typePosition == "Teller") {
     return <Navigate to="/teller" />;
   }
 

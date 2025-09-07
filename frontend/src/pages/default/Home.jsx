@@ -54,7 +54,7 @@ const Home = () => {
       <section className="grid md:grid-cols-3 gap-8 px-10 py-20 bg-gray-50">
         {/* Pos */}
         <motion.div whileHover={{ scale: 1.05 }} className="col-span-1">
-          <div className="shadow-xl border-0 rounded-2xl p-6 bg-white">
+          <div className="shadow-xl border-0 rounded-2xl p-6 h-[282px] bg-white">
             <ShoppingCart className="w-12 h-12 text-blue-600 mb-4" />
             <h3 className="text-2xl font-semibold mb-2">Point of Sales</h3>
             <p className="text-gray-600 text-sm mb-2">
@@ -62,10 +62,7 @@ const Home = () => {
               transaction recorded in realtime.
             </p>
             <p className="text-gray-600 text-sm">
-              Designed for flexibility, you can run multiple counters, accept
-              different payment methods, and generate receipts instantly. This
-              ensures accuracy, faster transactions, and an improved customer
-              experience.
+              Designed for flexibility, it supports multiple counters and reduces paper use by digitally tracking sales.
             </p>
           </div>
         </motion.div>
@@ -80,7 +77,7 @@ const Home = () => {
               beautifully designed charts and reports.
             </p>
             <p className="text-gray-600 text-sm">
-              Muibu highlights your best-selling products and services, helping
+              Muibu highlights your best selling products and services, helping
               you make informed decisions about stock, pricing, and promotions.
               Identify trends and maximize profits effortlessly.
             </p>

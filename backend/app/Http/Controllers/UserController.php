@@ -17,7 +17,7 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-public function register(SignUpRequest $signUpRequest)
+    public function register(SignUpRequest $signUpRequest)
     {
         try {
 
@@ -30,7 +30,7 @@ public function register(SignUpRequest $signUpRequest)
             return response()->json([
                 'message' => 'Registered successfully'
             ], 201);
-        } catch (\Exception $e) { 
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Something went wrong. Please try again later.'
             ], 500);
@@ -56,6 +56,12 @@ public function register(SignUpRequest $signUpRequest)
                 'status' => 'Online',
                 'updated_at' => now(),
             ]);
+
+            if ($user->statuss == 'Deactivate') {
+                return response()->json([
+                    'errors' => 'Your account has been deactivated.'
+                ], 423);
+            }
 
             if ($user->position != 'Admin') {
                 Attendance::create([

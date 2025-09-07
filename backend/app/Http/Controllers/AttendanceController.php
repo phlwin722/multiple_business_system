@@ -33,10 +33,10 @@ class AttendanceController extends Controller
                     ->whereYear('time_in', now()->year);
             } elseif ($request->calendar === 'yearly') {
                 $attendance->whereYear('time_in', now()->year);
-            } elseif ($request->calendar === 'custom' && $request->filled(['date_from', 'date_to'])) {
+            } elseif ($request->calendar === 'custom' && $request->filled(['start_date', 'end_date'])) {
                 $attendance->whereBetween('time_in', [
-                    Carbon::parse($request->date_from)->startOfDay(),
-                    Carbon::parse($request->date_to)->endOfDay()
+                    Carbon::parse($request->start_date)->startOfDay(),
+                    Carbon::parse($request->end_date)->endOfDay()
                 ]);
             }
 

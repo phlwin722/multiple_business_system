@@ -66,10 +66,10 @@ Route::prefix('attendance')->middleware('auth:sanctum')->controller(AttendanceCo
 });
 
 Route::prefix('dashboard')->middleware("auth:sanctum")->controller(DashboardController::class)->group(function () {
-    Route::get('/sales/{id}', 'sales');
-    Route::get('/employee/{id}','employee');
-    Route::get('/products/{id}','products');
-    Route::get('/business/{id}','business');
-    Route::get('/product-list/{id}', 'ProductList');
-    Route::get('/product-out-of-stock/{id}', 'OutOfStock');
+    Route::post('/sales/{id}', 'sales');
+    Route::post('/employee/{id}','employee');
+    Route::post('/products/{id}','products');
+    Route::post('/business/{id}','business');
+    Route::post('/product-list/{id}', 'ProductList');
+    Route::post('/product-out-of-stock/{id}', 'OutOfStock');
 });

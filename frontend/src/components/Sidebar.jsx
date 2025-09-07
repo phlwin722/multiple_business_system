@@ -175,6 +175,7 @@ const Sidebar = ({ isCollapsed, setCollapsed }) => {
   return (
     <div className="p-4">
       {loading && <Loading />}
+      
       <div className="flex justify-between">
         <h2 className="text-lg font-bold mb-4">Menu</h2>
         <RiArrowRightDoubleLine

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Sale;
 use App\Models\Product;
-use Carbon\Carbon;  
+use Carbon\Carbon;
 
 class SaleController extends Controller
 {
@@ -16,7 +16,7 @@ class SaleController extends Controller
             foreach($request->order as $item) {
 
                 $product = Product::findOrFail($item['id']);
-                
+
                 // check if there's enough stock
                 if ($product->quantity < $item['orderQuantity']) {
                     return response()->json([
@@ -24,7 +24,7 @@ class SaleController extends Controller
                     ],400);
                 }
 
-                // reduce the stock 
+                // reduce the stock
                 $product->quantity -= $item['orderQuantity'];
                 $product->save();
 
@@ -33,6 +33,7 @@ class SaleController extends Controller
                     'price' => $item['price'],
                     'product_id' => $item['id'],
                     'business_id' => $item['business_id'],
+                    'payment_mode' => $request->payment_mode,
                     'user_id' => $request->user_id
                 ]);
             }
@@ -48,7 +49,7 @@ class SaleController extends Controller
     }
 
     public function indexTeller (Request $request) {
-        try {   
+        try {
             $user = Sale::where('business_id',$request->business_id)
                 ->whereDate('created_at', Carbon::now()->toDateString())
                 ->orderBy('created_at', 'desc')
@@ -58,6 +59,7 @@ class SaleController extends Controller
                         'id' => $sale->id,
                         'order_quantity' => $sale->order_quantity,
                         'price' => $sale->price,
+                        'mode_payment' => $sale->payment_mode,
                         'product_id' => $sale->product_id,
                         'product_name' => $sale->product->product_name,
                         'image' => asset($sale->product->image),
